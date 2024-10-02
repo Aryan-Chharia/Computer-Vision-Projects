@@ -22,6 +22,10 @@ Computer-Vision-Projects
     ├── Dataset/
     │   └── shape_predictor_68_face_landmarks.dat
     └── main.py
+    └──assets/
+        └── 1.jpg
+        └── images.jpg
+   
 ```
 
 ### Running the script ###
