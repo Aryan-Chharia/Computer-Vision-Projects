@@ -1,0 +1,7 @@
+**Procedure adopted for detecting whether a user is blinking:**
+We use the eye aspect ratio (EAR) method to determine whether a user is blinking. The Eye Aspect Ratio (EAR) is a ratio that compares the height and width of the eye to provide a quantitative measure of its openness. It is calculated using the vertical and horizontal distances between specific eye landmarks identified by the dlib library which implements SVM and HOG to do the same.
+![alt text](./assets/1.jpg)
+The reason why we adopt this method is because when a user blinks, a very sudden drop in the EAR occurs. This is because the vertical distance drops very rapidly while the horizontal distance remains the same. We have to, however, include the horizontal distance in our formula to account for a relative comparison because when a user moves back into the background, if we hadn't included the horizontal distance then the vertical distance would grow smaller and that would sound a drowsiness alert.
+![alt text](./assets/images.jpg)
+**Procedure adopted for detecting whether a user is drowsy:**
+We set a maximum number of frames for which a user is allowed to have droopy eye-lids and a minimum EAR for drowsiness and if the user is detected to go out-of-bounds for both the checks, we display text stating that we have detected drowsiness. The counter is reset so that the user has a chance to wake themselves up and become more alert. This has real-world applications, particularly in the case of driving, where it's incredibly important to be active and alert.

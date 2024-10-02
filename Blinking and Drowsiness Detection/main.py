@@ -4,9 +4,6 @@ import dlib
 from math import sqrt
 from imutils import face_utils
 
-# from google.colab import drive
-
-# drive.mount('/content/gdrive/', force_remount=True)
 
 MIN_EAR = 0.2
 MIN_DROWSY_EAR = 0.3
