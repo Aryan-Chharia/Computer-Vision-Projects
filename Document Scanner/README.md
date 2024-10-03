@@ -7,7 +7,7 @@ This app allows you to scan documents using your camera and extract text from th
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/document-scanner.git
+git clone https://github.com/Aryan-Chharia/Computer-Vision-Projects.git
 ```
 
 ### 2. Navigate to the Project Directory
