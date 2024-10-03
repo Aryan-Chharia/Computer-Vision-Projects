@@ -10,8 +10,6 @@ This app allows you to scan documents using your camera and extract text from th
 git clone https://github.com/yourusername/document-scanner.git
 ```
 
-````
-
 ### 2. Navigate to the Project Directory
 
 ```bash
@@ -66,4 +64,5 @@ python main.py
 Follow the on-screen instructions to capture and process documents! 📝
 
 ```
-````
+
+```
