@@ -60,9 +60,3 @@ Run the main script to start the document scanner:
 ```bash
 python main.py
 ```
-
-Follow the on-screen instructions to capture and process documents! 📝
-
-```
-
-```
