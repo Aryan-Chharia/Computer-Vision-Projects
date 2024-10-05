@@ -1,25 +1,24 @@
-name: Copy Issue Labels to PR
+name: Auto Copy Issue Labels to All PRs
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'PR number to process (leave empty for all open PRs)'
-        required: false
+  push:
+    paths:
+      - '.github/workflows/auto-copy-labels.yml'
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+    - cron: '0 */6 * * *'  # Runs every 6 hours
 
 jobs:
   copy-labels:
     runs-on: ubuntu-latest
     steps:
-    - name: Process PRs
+    - name: Process All PRs
       uses: actions/github-script@v6
       with:
         script: |
           const processPR = async (prNumber) => {
+            console.log(`Processing PR #${prNumber}`);
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.name,
@@ -28,15 +27,11 @@ jobs:
             
             const issueNumber = pr.body.match(/#(\d+)/)?.[1];
             if (!issueNumber) {
-              await github.rest.issues.createComment({
-                issue_number: prNumber,
-                owner: context.repo.owner,
-                repo: context.repo.name,
-                body: '**Reminder:** Please add the issue reference (e.g., `Fixes #123`) in the PR description so we can link and close the corresponding issue.'
-              });
+              console.log(`No issue number found in PR #${prNumber}`);
               return;
             }
             
+            console.log(`Found issue #${issueNumber} for PR #${prNumber}`);
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.name,
@@ -50,20 +45,19 @@ jobs:
                 repo: context.repo.name,
                 labels: issue.labels.map(label => label.name)
               });
+              console.log(`Labels copied to PR #${prNumber}`);
+            } else {
+              console.log(`No labels to copy for PR #${prNumber}`);
             }
           };
 
-          if (context.payload.inputs && context.payload.inputs.pr_number) {
-            await processPR(parseInt(context.payload.inputs.pr_number));
-          } else if (context.eventName === 'schedule' || (context.payload.inputs && !context.payload.inputs.pr_number)) {
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.name,
-              state: 'open'
-            });
-            for (const pr of prs) {
-              await processPR(pr.number);
-            }
-          } else if (context.eventName === 'pull_request') {
-            await processPR(context.payload.pull_request.number);
+          const { data: prs } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.name,
+            state: 'open'
+          });
+          
+          console.log(`Found ${prs.length} open PRs`);
+          for (const pr of prs) {
+            await processPR(pr.number);
           }
