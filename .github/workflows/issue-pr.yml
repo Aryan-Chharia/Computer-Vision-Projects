@@ -2,71 +2,52 @@ name: Check PR Description for Issue Number
 
 on:
   pull_request:
-    types: [opened, edited]
-  workflow_dispatch: # Allows you to manually trigger the workflow
+    types: [opened, edited, reopened]
+  workflow_dispatch:
 
 jobs:
-  check_issue_number:
+  check_pr_description:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Check if PR description contains an issue number
+      - name: Check PR description and existing PRs
         uses: actions/github-script@v6
         with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const issuePattern = /#\d+/; // Issue number format: #123
-            const prDescription = context.payload.pull_request.body || ""; // Default to empty string if no body exists
+            const issuePattern = /#\d+/;
+            const { owner, repo } = context.repo;
 
-            if (!issuePattern.test(prDescription)) {
-              const prNumber = context.payload.pull_request.number;
-              const { owner, repo } = context.repo;
-              
-              // Post a comment to the PR asking to add an issue number
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: prNumber,
-                body: 'Please include the issue number in the PR description. Format: #<issue_number>'
-              });
-            } else {
-              console.log('Issue number found.');
+            async function checkPRDescription(pr) {
+              const prDescription = pr.body || "";
+              if (!issuePattern.test(prDescription)) {
+                console.log(`Issue number missing in PR #${pr.number}`);
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  body: 'Please include the issue number in the PR description. Format: #<issue_number>'
+                });
+                return false;
+              }
+              return true;
             }
 
-  check_existing_prs:
-    runs-on: ubuntu-latest
-    needs: check_issue_number  # Ensures the check for new PRs completes first
+            // Check the current PR
+            if (context.payload.pull_request) {
+              await checkPRDescription(context.payload.pull_request);
+            }
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: List existing open PRs
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const openPRs = await github.rest.pulls.list({
+            // Check existing open PRs
+            const openPRs = await github.paginate(github.rest.pulls.list, {
               owner,
               repo,
               state: 'open',
               per_page: 100
             });
 
-            const issuePattern = /#\d+/; // Issue number format: #123
-
-            openPRs.data.forEach(async pr => {
-              const prDescription = pr.body || ""; // Default to empty string if no body exists
-
-              if (!issuePattern.test(prDescription)) {
-                // Post a comment on the PR asking for the issue number
-                await github.rest.issues.createComment({
-                  owner,
-                  repo,
-                  issue_number: pr.number,
-                  body: `Please include the issue number in the PR description. Format: #<issue_number>`
-                });
-              }
-            });
+            for (const pr of openPRs) {
+              await checkPRDescription(pr);
+            }
