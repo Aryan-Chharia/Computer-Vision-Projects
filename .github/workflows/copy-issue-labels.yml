@@ -3,43 +3,67 @@ name: Copy Issue Labels to PR
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to process (leave empty for all open PRs)'
+        required: false
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 jobs:
   copy-labels:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v2
-
-    - name: Extract Issue Number from PR description
-      id: extract_issue
-      run: |
-        ISSUE_NUMBER=$(echo "${{ github.event.pull_request.body }}" | grep -oE "#[0-9]+" | head -n 1 | tr -d '#')
-        echo "Issue number: $ISSUE_NUMBER"
-        echo "::set-output name=issue_number::$ISSUE_NUMBER"
-        
-    - name: Check if Issue Number Exists in PR Description
-      id: issue_check
-      run: |
-        if [[ "${{ steps.extract_issue.outputs.issue_number }}" == "" ]]; then
-          echo "No issue number found in PR description."
-          exit 1
-        fi
-      continue-on-error: true
-
-    - name: Comment on PR to Remind Contributor (if issue number missing)
-      if: failure()
-      uses: actions-ecosystem/action-create-comment@v1
+    - name: Process PRs
+      uses: actions/github-script@v6
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_number: ${{ github.event.pull_request.number }}
-        body: |
-          **Reminder:** Please add the issue reference (e.g., `Fixes #123`) in the PR description so we can link and close the corresponding issue.
+        script: |
+          const processPR = async (prNumber) => {
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              pull_number: prNumber
+            });
+            
+            const issueNumber = pr.body.match(/#(\d+)/)?.[1];
+            if (!issueNumber) {
+              await github.rest.issues.createComment({
+                issue_number: prNumber,
+                owner: context.repo.owner,
+                repo: context.repo.name,
+                body: '**Reminder:** Please add the issue reference (e.g., `Fixes #123`) in the PR description so we can link and close the corresponding issue.'
+              });
+              return;
+            }
+            
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              issue_number: issueNumber
+            });
+            
+            if (issue.labels.length > 0) {
+              await github.rest.issues.addLabels({
+                issue_number: prNumber,
+                owner: context.repo.owner,
+                repo: context.repo.name,
+                labels: issue.labels.map(label => label.name)
+              });
+            }
+          };
 
-    - name: Copy Labels from Issue to PR (if issue exists)
-      if: success()
-      uses: actions-ecosystem/action-add-labels@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_number: ${{ steps.extract_issue.outputs.issue_number }}
+          if (context.payload.inputs && context.payload.inputs.pr_number) {
+            await processPR(parseInt(context.payload.inputs.pr_number));
+          } else if (context.eventName === 'schedule' || (context.payload.inputs && !context.payload.inputs.pr_number)) {
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              state: 'open'
+            });
+            for (const pr of prs) {
+              await processPR(pr.number);
+            }
+          } else if (context.eventName === 'pull_request') {
+            await processPR(context.payload.pull_request.number);
+          }
