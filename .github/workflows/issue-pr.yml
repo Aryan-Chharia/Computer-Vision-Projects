@@ -4,11 +4,6 @@ on:
   pull_request:
     types: [opened, edited]
   workflow_dispatch: # Allows you to manually trigger the workflow
-    inputs:
-      run_check_existing_prs:
-        description: "Run the script for existing PRs"
-        required: false
-        default: true
 
 jobs:
   check_issue_number:
@@ -23,7 +18,7 @@ jobs:
         with:
           script: |
             const issuePattern = /#\d+/; // Issue number format: #123
-            const prDescription = context.payload.pull_request.body;
+            const prDescription = context.payload.pull_request.body || ""; // Default to empty string if no body exists
 
             if (!issuePattern.test(prDescription)) {
               const prNumber = context.payload.pull_request.number;
@@ -63,7 +58,7 @@ jobs:
             const issuePattern = /#\d+/; // Issue number format: #123
 
             openPRs.data.forEach(async pr => {
-              const prDescription = pr.body;
+              const prDescription = pr.body || ""; // Default to empty string if no body exists
 
               if (!issuePattern.test(prDescription)) {
                 // Post a comment on the PR asking for the issue number
