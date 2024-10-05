@@ -1,0 +1,77 @@
+name: Check PR Description for Issue Number
+
+on:
+  pull_request:
+    types: [opened, edited]
+  workflow_dispatch: # Allows you to manually trigger the workflow
+    inputs:
+      run_check_existing_prs:
+        description: "Run the script for existing PRs"
+        required: false
+        default: true
+
+jobs:
+  check_issue_number:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check if PR description contains an issue number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issuePattern = /#\d+/; // Issue number format: #123
+            const prDescription = context.payload.pull_request.body;
+
+            if (!issuePattern.test(prDescription)) {
+              const prNumber = context.payload.pull_request.number;
+              const { owner, repo } = context.repo;
+              
+              // Post a comment to the PR asking to add an issue number
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: 'Please include the issue number in the PR description. Format: #<issue_number>'
+              });
+            } else {
+              console.log('Issue number found.');
+            }
+
+  check_existing_prs:
+    runs-on: ubuntu-latest
+    needs: check_issue_number  # Ensures the check for new PRs completes first
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: List existing open PRs
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const openPRs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            const issuePattern = /#\d+/; // Issue number format: #123
+
+            openPRs.data.forEach(async pr => {
+              const prDescription = pr.body;
+
+              if (!issuePattern.test(prDescription)) {
+                // Post a comment on the PR asking for the issue number
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  body: `Please include the issue number in the PR description. Format: #<issue_number>`
+                });
+              }
+            });
