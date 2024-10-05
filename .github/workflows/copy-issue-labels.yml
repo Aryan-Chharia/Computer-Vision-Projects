@@ -1,0 +1,45 @@
+name: Copy Issue Labels to PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  copy-labels:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Extract Issue Number from PR description
+      id: extract_issue
+      run: |
+        ISSUE_NUMBER=$(echo "${{ github.event.pull_request.body }}" | grep -oE "#[0-9]+" | head -n 1 | tr -d '#')
+        echo "Issue number: $ISSUE_NUMBER"
+        echo "::set-output name=issue_number::$ISSUE_NUMBER"
+        
+    - name: Check if Issue Number Exists in PR Description
+      id: issue_check
+      run: |
+        if [[ "${{ steps.extract_issue.outputs.issue_number }}" == "" ]]; then
+          echo "No issue number found in PR description."
+          exit 1
+        fi
+      continue-on-error: true
+
+    - name: Comment on PR to Remind Contributor (if issue number missing)
+      if: failure()
+      uses: actions-ecosystem/action-create-comment@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_number: ${{ github.event.pull_request.number }}
+        body: |
+          **Reminder:** Please add the issue reference (e.g., `Fixes #123`) in the PR description so we can link and close the corresponding issue.
+
+    - name: Copy Labels from Issue to PR (if issue exists)
+      if: success()
+      uses: actions-ecosystem/action-add-labels@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_number: ${{ steps.extract_issue.outputs.issue_number }}
