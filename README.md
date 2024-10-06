@@ -24,7 +24,3 @@ I welcome contributions to enhance these projects! Feel free to fork the reposit
 
 ### 📝 License
 This repository is open-source and available under the MIT License.
-
-### 👩‍💻 Let's Connect
-If you have any questions, feedback, or just want to chat about computer vision, feel free to reach out!
-
