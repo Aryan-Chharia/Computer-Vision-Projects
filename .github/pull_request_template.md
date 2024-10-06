@@ -1,6 +1,10 @@
 ## Related Issue
 [Cite any related issue(s) this pull request addresses. If none, simply state “None”]
 
+NOTE: Kindly write in the following format -
+
+Closes #issue-number
+
 ## Description
 [Please include a brief description of the changes or features added]
 
