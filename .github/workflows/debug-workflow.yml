@@ -1,0 +1,16 @@
+name: Debug Workflow
+
+on:
+  schedule:
+    - cron: '* * * * *'  # Run every 5 minutes
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  debug-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print debug information
+        run: |
+          echo "Workflow is running!"
+          echo "Current time: $(date)"
+          echo "GitHub context: ${{ toJson(github) }}"
