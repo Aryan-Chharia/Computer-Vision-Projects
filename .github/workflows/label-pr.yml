@@ -3,7 +3,7 @@ name: Sync PR Labels with Linked Issues
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight UTC
+    - cron: '0 * * * *'  # Run every 2 hours
 
 jobs:
   sync-labels:
