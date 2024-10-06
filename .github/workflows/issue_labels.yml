@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, edited]
   schedule:
-    - cron: '* * * * *'  # Run every minute
+    - cron: '*/5 * * * *'  # Run every 5 minutes
 
 jobs:
   pr-label-automation:
@@ -73,7 +73,7 @@ jobs:
             
             if (process.env.GITHUB_EVENT_NAME === "pull_request") {
               const pull_number = process.env.GITHUB_EVENT.pull_request.number;
-              await processOR(owner, repo, pull_number);
+              await processPR(owner, repo, pull_number);
             } else {
               const { data: prs } = await octokit.pulls.list({
                 owner,
@@ -82,7 +82,7 @@ jobs:
               });
 
               for (const pr of prs) {
-                await processOR(owner, repo, pr.number);
+                await processPR(owner, repo, pr.number);
               }
             }
           }
