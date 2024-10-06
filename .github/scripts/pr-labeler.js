@@ -1,17 +1,22 @@
 const github = require('@actions/github');
 const core = require('@actions/core');
-const { context } = github;
 
-(async () => {
+async function run() {
   try {
     const token = process.env.GITHUB_TOKEN;
     const octokit = github.getOctokit(token);
+    const context = github.context;
     const pr = context.payload.pull_request;
+
+    if (!pr) {
+      core.setFailed('This action can only be run on pull_request events');
+      return;
+    }
+
     const prNumber = pr.number;
-    const prBody = pr.body;
+    const prBody = pr.body || '';
     const repoOwner = context.repo.owner;
     const repoName = context.repo.repo;
-
     const issueRegex = /#(\d+)/;
     const match = prBody.match(issueRegex);
     
@@ -22,7 +27,7 @@ const { context } = github;
       const issue = await octokit.rest.issues.get({
         owner: repoOwner,
         repo: repoName,
-        issue_number: issueNumber
+        issue_number: parseInt(issueNumber)
       });
       
       const issueLabels = issue.data.labels.map(label => label.name);
@@ -50,4 +55,6 @@ const { context } = github;
   } catch (error) {
     core.setFailed(`Action failed with error: ${error.message}`);
   }
-})();
+}
+
+run();
