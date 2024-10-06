@@ -1,72 +1,63 @@
-name: PR Issue Number and Label Handler
+name: PR Label Management
 
 on:
   pull_request:
-    types: [opened, edited]
-  schedule:
-    - cron: '0 0 * * *'  # Run the script daily to check for first-time activation
+    types: [opened, edited, reopened, synchronize]
+  workflow_dispatch:
 
 jobs:
-  check-issue-number:
+  manage-labels:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Check if issue number is present
-      id: check_issue
-      run: |
-        PR_BODY=$(jq -r .pull_request.body "$GITHUB_EVENT_PATH")
-        if [[ "$PR_BODY" =~ #[0-9]+ ]]; then
-          ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oE '#[0-9]+' | sed 's/#//')
-          echo "::set-output name=issue_number::$ISSUE_NUMBER"
-        else
-          echo "::set-output name=issue_number::"
-        fi
-
-    - name: Add comment if no issue number is found
-      if: steps.check_issue.outputs.issue_number == ''
-      run: |
-        PR_URL=$(jq -r .pull_request.html_url "$GITHUB_EVENT_PATH")
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-             -X POST -d '{"body":"Please add an issue number in the format #<issue_number> to the PR description."}' \
-             "$PR_URL/comments"
-
-    - name: Get labels from issue
-      if: steps.check_issue.outputs.issue_number != ''
-      run: |
-        ISSUE_NUMBER=${{ steps.check_issue.outputs.issue_number }}
-        ISSUE_URL="https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER"
-        ISSUE_LABELS=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$ISSUE_URL" | jq -r '.labels[].name')
-        echo "Issue labels: $ISSUE_LABELS"
-        echo "::set-output name=issue_labels::$ISSUE_LABELS"
-
-    - name: Apply labels to PR
-      if: steps.check_issue.outputs.issue_labels != ''
-      run: |
-        PR_URL=$(jq -r .pull_request.issue_url "$GITHUB_EVENT_PATH")
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-             -X POST -d "{\"labels\":[$(echo ${{ steps.check_issue.outputs.issue_labels }} | jq -R . | jq -s .)]}" \
-             "$PR_URL/labels"
-
-    - name: Run for open PRs (only first time)
-      if: github.event_name == 'schedule'
-      run: |
-        OPEN_PRS_URL="https://api.github.com/repos/${{ github.repository }}/pulls?state=open"
-        OPEN_PRS=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$OPEN_PRS_URL")
-        for PR in $(echo "$OPEN_PRS" | jq -r '.[].url'); do
-          PR_BODY=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$PR" | jq -r '.body')
-          if [[ "$PR_BODY" =~ #[0-9]+ ]]; then
-            ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oE '#[0-9]+' | sed 's/#//')
-            ISSUE_URL="https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER"
-            ISSUE_LABELS=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$ISSUE_URL" | jq -r '.labels[].name')
-            curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                 -X POST -d "{\"labels\":[$(echo $ISSUE_LABELS | jq -R . | jq -s .)]}" \
-                 "$PR/labels"
-          else
-            curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                 -X POST -d '{"body":"Please add an issue number in the format #<issue_number> to the PR description."}' \
-                 "$PR/comments"
-          fi
-        done
+      - uses: actions/checkout@v3
+      - name: Check PR description and manage labels
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            
+            // Function to extract issue number from PR description
+            function extractIssueNumber(description) {
+              const match = description.match(/#(\d+)/);
+              return match ? match[1] : null;
+            }
+            
+            // Function to add labels from an issue to the PR
+            async function addLabelsFromIssue(issueNumber) {
+              const issue = await github.rest.issues.get({
+                owner,
+                repo,
+                issue_number: issueNumber
+              });
+              
+              if (issue.data.labels.length > 0) {
+                const labels = issue.data.labels.map(label => label.name);
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  labels: labels
+                });
+                console.log(`Added labels: ${labels.join(', ')}`);
+              } else {
+                console.log('No labels found on the linked issue');
+              }
+            }
+            
+            // Main logic
+            const issueNumber = extractIssueNumber(pr.body);
+            
+            if (issueNumber) {
+              console.log(`Issue number found: #${issueNumber}`);
+              await addLabelsFromIssue(issueNumber);
+            } else {
+              console.log('No issue number found in PR description');
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pr.number,
+                body: 'Please update the PR description to include the related issue number (e.g., #123).'
+              });
+            }
