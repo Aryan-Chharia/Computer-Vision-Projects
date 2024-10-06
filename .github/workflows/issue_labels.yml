@@ -1,8 +1,7 @@
 name: PR Label Management
-
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize]
+    types: [opened]
   workflow_dispatch:
 
 permissions:
@@ -20,17 +19,13 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const github = require('@actions/github');
-            const core = require('@actions/core');
-
-            const { owner, repo } = github.context.repo;
-            const pr = github.context.payload.pull_request;
-
+            const { owner, repo } = context.repo;
+            
             function extractIssueNumber(description) {
               const match = description?.match(/#(\d+)/);
               return match ? match[1] : null;
             }
-
+            
             async function addLabelsFromIssue(issueNumber, prNumber) {
               try {
                 console.log(`Fetching labels for issue #${issueNumber}`);
@@ -39,7 +34,7 @@ jobs:
                   repo,
                   issue_number: issueNumber
                 });
-
+                
                 if (issue.data.labels.length > 0) {
                   const labels = issue.data.labels.map(label => label.name);
                   console.log(`Adding labels to PR #${prNumber}: ${labels.join(', ')}`);
@@ -57,11 +52,9 @@ jobs:
                 console.error(`Error in addLabelsFromIssue for PR #${prNumber}: ${error.message}`);
               }
             }
-
-            try {
-              console.log('Starting PR label management');
+            
+            async function processPR(pr) {
               console.log(`Processing PR #${pr.number}`);
-
               const issueNumber = extractIssueNumber(pr.body);
               if (issueNumber) {
                 await addLabelsFromIssue(issueNumber, pr.number);
@@ -74,7 +67,36 @@ jobs:
                   body: 'Please update the PR description to include the related issue number (e.g., #123).'
                 });
               }
-
+            }
+            
+            try {
+              console.log('Starting PR label management');
+              
+              if (context.eventName === 'workflow_dispatch') {
+                console.log('Manual run - processing all open PRs');
+                let page = 1;
+                while (true) {
+                  const { data: prs } = await github.rest.pulls.list({
+                    owner,
+                    repo,
+                    state: 'open',
+                    per_page: 100,
+                    page: page
+                  });
+                  
+                  if (prs.length === 0) break;
+                  
+                  for (const pr of prs) {
+                    await processPR(pr);
+                  }
+                  
+                  page++;
+                }
+              } else {
+                const pr = context.payload.pull_request;
+                await processPR(pr);
+              }
+              
               console.log('PR label management completed successfully');
             } catch (error) {
               console.error(`Error in main script execution: ${error.message}`);
