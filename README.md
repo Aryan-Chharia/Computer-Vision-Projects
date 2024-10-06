@@ -5,11 +5,7 @@ Welcome to my Computer Vision Projects repository! Here, you will find a collect
 Object Detection: Implement algorithms that identify and locate objects within images or video streams.
 Image Stitching: Combine multiple images seamlessly into a panoramic view using feature detection and matching.
 Image Segmentation: Explore techniques that partition an image into meaningful segments for better analysis and processing.
-### 🛠️ Technologies Used
-Python
-OpenCV
-Numpy
-Matplotlib
+
 ### 📖 How to Get Started
 To get started with any of the projects, simply clone the repository:
 
@@ -28,7 +24,3 @@ I welcome contributions to enhance these projects! Feel free to fork the reposit
 
 ### 📝 License
 This repository is open-source and available under the MIT License.
-
-### 👩‍💻 Let's Connect
-If you have any questions, feedback, or just want to chat about computer vision, feel free to reach out!
-
