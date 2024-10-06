@@ -10,8 +10,8 @@ The Face Recognition System is a real-time application designed to detect, recog
 
 # Results:
 
-![initial](results/Screenshot 2024-10-06 193552.png)
+![initial](https://github.com/anirudh-248/Computer-Vision-Projects/blob/f77f5db68cd59a8353dcdbbe08191f89a9fc1775/smart_attendance_system/results/Screenshot%202024-10-06%20193552.png)
 
-![result](results/Screenshot 2024-10-06 193656.png)
+![result]([results/Screenshot 2024-10-06 193656.png](https://github.com/anirudh-248/Computer-Vision-Projects/blob/f77f5db68cd59a8353dcdbbe08191f89a9fc1775/smart_attendance_system/results/Screenshot%202024-10-06%20193656.png))
 
-![csv_file](results/Screenshot 2024-10-06 193721.png)
+![csv_file](https://github.com/anirudh-248/Computer-Vision-Projects/blob/f77f5db68cd59a8353dcdbbe08191f89a9fc1775/smart_attendance_system/results/Screenshot%202024-10-06%20193721.png)
