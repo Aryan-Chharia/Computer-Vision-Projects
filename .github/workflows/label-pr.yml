@@ -3,7 +3,7 @@ name: Auto-label PR based on Issue
 on:
   pull_request:
     types: [opened, edited, synchronize]
-  workflow_dispatch: # for manual trigger to run for open PRs
+  workflow_dispatch:
 
 jobs:
   auto_label_pr:
@@ -15,15 +15,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Install dependencies
         run: |
           npm init -y
-          npm install @actions/github
+          npm install @actions/github @actions/core
 
       - name: Run PR Label Script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          node .github/scripts/pr-labeler.js
+        run: node .github/scripts/pr-labeler.js
