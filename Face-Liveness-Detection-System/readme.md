@@ -1,4 +1,3 @@
-```
 # Face Liveness Detection System 👤💻
 
 This project implements a Face Liveness Detection System using profile detection and blink detection techniques. The system is designed to verify whether a person is physically present during the authentication process by analyzing facial features and eye blinks. 🔍
@@ -55,7 +54,7 @@ your_project_directory/
 └── README.md
 ```
 
-## Contributing 🤝
+## contributor 🤝
 
-contributor:**Pratik Wayal**. Feel free to connect: [GitHub](https://github.com/pratikwayal01). All contributions are welcome! 🌟
+Contributor:**Pratik Wayal**. Feel free to connect: [GitHub](https://github.com/pratikwayal01). All contributions are welcome! 🌟
 ```
