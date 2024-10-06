@@ -16,48 +16,70 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const { owner, repo } = context.repo;
-            const pr = context.payload.pull_request;
             
-            // Function to extract issue number from PR description
             function extractIssueNumber(description) {
-              const match = description.match(/#(\d+)/);
+              const match = description?.match(/#(\d+)/);
               return match ? match[1] : null;
             }
             
-            // Function to add labels from an issue to the PR
-            async function addLabelsFromIssue(issueNumber) {
-              const issue = await github.rest.issues.get({
-                owner,
-                repo,
-                issue_number: issueNumber
-              });
-              
-              if (issue.data.labels.length > 0) {
-                const labels = issue.data.labels.map(label => label.name);
-                await github.rest.issues.addLabels({
+            async function addLabelsFromIssue(issueNumber, prNumber) {
+              try {
+                const issue = await github.rest.issues.get({
                   owner,
                   repo,
-                  issue_number: pr.number,
-                  labels: labels
+                  issue_number: issueNumber
                 });
-                console.log(`Added labels: ${labels.join(', ')}`);
-              } else {
-                console.log('No labels found on the linked issue');
+                
+                if (issue.data.labels.length > 0) {
+                  const labels = issue.data.labels.map(label => label.name);
+                  await github.rest.issues.addLabels({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    labels: labels
+                  });
+                  console.log(`Added labels: ${labels.join(', ')}`);
+                } else {
+                  console.log('No labels found on the linked issue');
+                }
+              } catch (error) {
+                console.error(`Error in addLabelsFromIssue: ${error.message}`);
+                throw error;
               }
             }
             
-            // Main logic
-            const issueNumber = extractIssueNumber(pr.body);
-            
-            if (issueNumber) {
-              console.log(`Issue number found: #${issueNumber}`);
-              await addLabelsFromIssue(issueNumber);
-            } else {
-              console.log('No issue number found in PR description');
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: pr.number,
-                body: 'Please update the PR description to include the related issue number (e.g., #123).'
-              });
+            try {
+              console.log('Starting PR label management');
+              
+              let pr;
+              if (context.eventName === 'pull_request') {
+                pr = context.payload.pull_request;
+                console.log(`Processing PR #${pr.number}`);
+                console.log(`PR Body: ${pr.body}`);
+                
+                const issueNumber = extractIssueNumber(pr.body);
+                
+                if (issueNumber) {
+                  console.log(`Issue number found: #${issueNumber}`);
+                  await addLabelsFromIssue(issueNumber, pr.number);
+                } else {
+                  console.log('No issue number found in PR description');
+                  await github.rest.issues.createComment({
+                    owner,
+                    repo,
+                    issue_number: pr.number,
+                    body: 'Please update the PR description to include the related issue number (e.g., #123).'
+                  });
+                }
+              } else {
+                console.log('This workflow was not triggered by a pull request event.');
+                console.log('To process PRs manually, please provide a PR number:');
+                // You could potentially use an input parameter here if you want to process a specific PR
+                // when running the workflow manually.
+              }
+              
+              console.log('PR label management completed successfully');
+            } catch (error) {
+              console.error(`Error in main script execution: ${error.message}`);
+              core.setFailed(`Action failed with error: ${error.message}`);
             }
