@@ -46,15 +46,16 @@ while True:
             # Draw landmarks
             mp_draw.draw_landmarks(img, hand_lms, mp_hands.HAND_CONNECTIONS)
 
-            # Calculate distance between thumb and index
-            distance = np.linalg.norm(np.array(thumb_coords) - np.array(index_coords))
+            # Calculate horizontal (x-axis) and vertical (y-axis) distances
+            horizontal_distance = np.abs(thumb_coords[0] - index_coords[0])  # X distance for volume
+            vertical_distance = np.abs(thumb_coords[1] - index_coords[1])  # Y distance for brightness
 
-            # Normalize distance to volume range
-            vol = np.interp(distance, [30, 300], [min_vol, max_vol])
+            # Normalize the horizontal distance to the volume range
+            vol = np.interp(horizontal_distance, [30, 300], [min_vol, max_vol])
             volume.SetMasterVolumeLevel(vol, None)
 
-            # Control brightness (as a percentage)
-            brightness = np.interp(distance, [30, 300], [0, 100])
+            # Normalize the vertical distance to brightness control
+            brightness = np.interp(vertical_distance, [30, 300], [0, 100])
             set_brightness(int(brightness))
 
             # Display controls
