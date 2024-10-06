@@ -3,7 +3,6 @@ name: Auto-label PR based on Issue
 on:
   pull_request:
     types: [opened, edited, synchronize]
-  workflow_dispatch:
 
 jobs:
   auto_label_pr:
