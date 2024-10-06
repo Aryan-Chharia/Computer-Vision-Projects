@@ -51,6 +51,7 @@ python main.py --input path/to/image.jpg --output path/to/output.jpg
 ```
 
 ## Screenshots 📷
+![image](https://github.com/user-attachments/assets/415f5dfe-ee33-42b4-aa8e-2466ad8c6d45)
 
 
 ## Contributions
