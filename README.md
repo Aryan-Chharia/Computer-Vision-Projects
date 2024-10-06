@@ -20,7 +20,7 @@ Install the required dependencies:
 
 pip install -r requirements.txt
 ### 🤝 Contributing
-I welcome contributions to enhance these projects! Feel free to fork the repository, make your improvements, and submit a pull request.
+I welcome contributions to enhance these projects! Feel free to fork the repository, make your improvements, and submit a pull request. Thanks !!
 
 ### 📝 License
 This repository is open-source and available under the MIT License.
