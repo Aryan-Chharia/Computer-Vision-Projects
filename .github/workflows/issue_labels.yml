@@ -2,38 +2,53 @@ name: PR Issue Labeler
 
 on:
   pull_request:
-    types: [opened, edited, reopened]
-  workflow_dispatch: # Manually trigger the workflow for existing open PRs
+    types:
+      - opened
+      - edited
+  workflow_dispatch:  # Trigger when this action is added for the first time
+  schedule:           # Optional: run periodically to catch any missed PRs
+    - cron: '0 0 * * *'  # Runs every day at midnight
 
 jobs:
-  labeler:
+  label_pr:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Check PR description for issue number
-      id: check_issue
+    - name: Get PR information
+      id: pr_info
+      uses: actions-ecosystem/action-get-issue-number@v1.2.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Check for Issue Number
+      id: issue_check
       run: |
-        ISSUE_NUMBER=$(echo "${{ github.event.pull_request.body }}" | grep -oP '#\K\d+')
-        echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_ENV
+        ISSUE_NUMBER=$(echo "${{ steps.pr_info.outputs.issue_number }}" | grep -oP '#\d+')
+        if [ -z "$ISSUE_NUMBER" ]; then
+          echo "No issue number found"
+          echo "::set-output name=issue_found::false"
+        else
+          echo "Issue number found: $ISSUE_NUMBER"
+          echo "::set-output name=issue_found::true"
+        fi
 
-    - name: Handle missing issue number
-      if: env.issue_number == ''
+    - name: Comment if no issue number
+      if: steps.issue_check.outputs.issue_found == 'false'
       run: |
-        gh pr comment ${{ github.event.pull_request.number }} --body "Please include an issue number (e.g., #123) in the description."
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -d '{"body":"Please add the issue number in the description. Example: `#123`"}' \
+        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
 
-    - name: Fetch issue labels and apply to PR
-      if: env.issue_number != ''
+    - name: Add Labels from Issue
+      if: steps.issue_check.outputs.issue_found == 'true'
       run: |
-        # Get issue labels
-        LABELS=$(gh issue view ${{ env.issue_number }} --json labels --jq '.labels[].name')
-        # Apply labels to the PR
-        for LABEL in $LABELS; do
-          gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL"
-        done
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ISSUE_NUMBER=$(echo "${{ steps.pr_info.outputs.issue_number }}" | grep -oP '\d+')
+        ISSUE_LABELS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/labels" | jq -r '.[].name')
+        
+        curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -d "{\"labels\": [${ISSUE_LABELS}]}" \
+        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels"
