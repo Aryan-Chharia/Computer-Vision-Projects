@@ -1,14 +1,25 @@
-name: Auto-label PR based on Issue
+name: Sync PR Labels with Linked Issue
 
 on:
+  # Triggers the workflow on PR opened, edited, or synchronized (updated).
   pull_request:
-    types: [opened, edited, synchronize]
+    types:
+      - opened
+      - edited
+      - synchronize
+
+  # Manual trigger for the workflow.
+  workflow_dispatch:
+
+  # Schedule to run every day at midnight (00:00 UTC).
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
-  auto_label_pr:
+  sync-labels:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -16,12 +27,50 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies
+      - name: Check for linked issue in PR description
+        id: check_issue
         run: |
-          npm init -y
-          npm install @actions/github @actions/core
+          pr_body="${{ github.event.pull_request.body }}"
+          issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+')
 
-      - name: Run PR Label Script
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node .github/scripts/pr-labeler.js
+          if [ -z "$issue_number" ]; then
+            echo "No issue number found in the PR description."
+            echo "::set-output name=issue_number::"
+          else
+            echo "Found issue number: $issue_number"
+            echo "::set-output name=issue_number::$issue_number"
+          fi
+
+      - name: Get issue labels
+        if: steps.check_issue.outputs.issue_number != ''
+        id: get_issue_labels
+        run: |
+          issue_number=${{ steps.check_issue.outputs.issue_number }}
+
+          response=$(gh api "repos/${{ github.repository }}/issues/$issue_number" --jq '.labels')
+          if [ -z "$response" ]; then
+            echo "No labels found on the linked issue."
+            echo "::set-output name=labels::"
+          else
+            labels=$(echo "$response" | jq -r '.[].name' | paste -sd "," -)
+            echo "Labels found: $labels"
+            echo "::set-output name=labels::$labels"
+          fi
+
+      - name: Apply labels to the PR
+        if: steps.get_issue_labels.outputs.labels != ''
+        run: |
+          labels=${{ steps.get_issue_labels.outputs.labels }}
+          gh api --method PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}" \
+            -f labels="$labels"
+
+      - name: Comment if no issue found
+        if: steps.check_issue.outputs.issue_number == ''
+        run: |
+          pr_number=${{ github.event.pull_request.number }}
+          gh pr comment "$pr_number" --body "Please link an issue number in the description."
+
+      - name: Notify if no labels on linked issue
+        if: steps.get_issue_labels.outputs.labels == ''
+        run: |
+          echo "No labels found on the linked issue. No labels will be applied."
