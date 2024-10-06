@@ -20,13 +20,17 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const { owner, repo } = context.repo;
-            
+            const github = require('@actions/github');
+            const core = require('@actions/core');
+
+            const { owner, repo } = github.context.repo;
+            const pr = github.context.payload.pull_request;
+
             function extractIssueNumber(description) {
               const match = description?.match(/#(\d+)/);
               return match ? match[1] : null;
             }
-            
+
             async function addLabelsFromIssue(issueNumber, prNumber) {
               try {
                 console.log(`Fetching labels for issue #${issueNumber}`);
@@ -35,7 +39,7 @@ jobs:
                   repo,
                   issue_number: issueNumber
                 });
-                
+
                 if (issue.data.labels.length > 0) {
                   const labels = issue.data.labels.map(label => label.name);
                   console.log(`Adding labels to PR #${prNumber}: ${labels.join(', ')}`);
@@ -53,12 +57,11 @@ jobs:
                 console.error(`Error in addLabelsFromIssue for PR #${prNumber}: ${error.message}`);
               }
             }
-            
+
             try {
               console.log('Starting PR label management');
-              
-              const pr = context.payload.pull_request;
               console.log(`Processing PR #${pr.number}`);
+
               const issueNumber = extractIssueNumber(pr.body);
               if (issueNumber) {
                 await addLabelsFromIssue(issueNumber, pr.number);
