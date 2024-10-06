@@ -1,104 +1,90 @@
-name: PR Label Management
+name: PR Label Automation
+
 on:
   pull_request:
-    types: [opened]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
+    types: [opened, reopened, edited]
+  schedule:
+    - cron: '0 * * * *'  # Run every hour
 
 jobs:
-  manage-labels:
+  pr-label-automation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Check PR descriptions and manage labels
-        uses: actions/github-script@v6
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const { owner, repo } = context.repo;
-            
-            function extractIssueNumber(description) {
-              const match = description?.match(/#(\d+)/);
-              return match ? match[1] : null;
-            }
-            
-            async function addLabelsFromIssue(issueNumber, prNumber) {
-              try {
-                console.log(`Fetching labels for issue #${issueNumber}`);
-                const issue = await github.rest.issues.get({
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install @octokit/rest
+
+      - name: Run PR label automation script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          const { Octokit } = require("@octokit/rest");
+          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
+          async function processPR(owner, repo, pull_number) {
+            const { data: pr } = await octokit.pulls.get({
+              owner,
+              repo,
+              pull_number,
+            });
+
+            const issueRegex = /#(\d+)/;
+            const match = pr.body.match(issueRegex);
+
+            if (match) {
+              const issueNumber = parseInt(match[1]);
+              const { data: issue } = await octokit.issues.get({
+                owner,
+                repo,
+                issue_number: issueNumber,
+              });
+
+              if (issue.labels.length > 0) {
+                await octokit.issues.addLabels({
                   owner,
                   repo,
-                  issue_number: issueNumber
+                  issue_number: pull_number,
+                  labels: issue.labels.map(label => label.name),
                 });
-                
-                if (issue.data.labels.length > 0) {
-                  const labels = issue.data.labels.map(label => label.name);
-                  console.log(`Adding labels to PR #${prNumber}: ${labels.join(', ')}`);
-                  await github.rest.issues.addLabels({
-                    owner,
-                    repo,
-                    issue_number: prNumber,
-                    labels: labels
-                  });
-                  console.log(`Labels added successfully to PR #${prNumber}`);
-                } else {
-                  console.log(`No labels found on the linked issue #${issueNumber}`);
-                }
-              } catch (error) {
-                console.error(`Error in addLabelsFromIssue for PR #${prNumber}: ${error.message}`);
-              }
-            }
-            
-            async function processPR(pr) {
-              console.log(`Processing PR #${pr.number}`);
-              const issueNumber = extractIssueNumber(pr.body);
-              if (issueNumber) {
-                await addLabelsFromIssue(issueNumber, pr.number);
+                console.log(`Added labels to PR #${pull_number}`);
               } else {
-                console.log('No issue number found in PR description');
-                await github.rest.issues.createComment({
-                  owner,
-                  repo,
-                  issue_number: pr.number,
-                  body: 'Please update the PR description to include the related issue number (e.g., #123).'
-                });
+                console.log(`Issue #${issueNumber} has no labels`);
               }
+            } else {
+              await octokit.issues.createComment({
+                owner,
+                repo,
+                issue_number: pull_number,
+                body: "Please include the related issue number in the PR description.",
+              });
+              console.log(`Commented on PR #${pull_number} to request issue number`);
             }
+          }
+
+          async function run() {
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
             
-            try {
-              console.log('Starting PR label management');
-              
-              if (context.eventName === 'workflow_dispatch') {
-                console.log('Manual run - processing all open PRs');
-                let page = 1;
-                while (true) {
-                  const { data: prs } = await github.rest.pulls.list({
-                    owner,
-                    repo,
-                    state: 'open',
-                    per_page: 100,
-                    page: page
-                  });
-                  
-                  if (prs.length === 0) break;
-                  
-                  for (const pr of prs) {
-                    await processPR(pr);
-                  }
-                  
-                  page++;
-                }
-              } else {
-                const pr = context.payload.pull_request;
-                await processPR(pr);
+            if (process.env.GITHUB_EVENT_NAME === "pull_request") {
+              const pull_number = process.env.GITHUB_EVENT.pull_request.number;
+              await processOR(owner, repo, pull_number);
+            } else {
+              const { data: prs } = await octokit.pulls.list({
+                owner,
+                repo,
+                state: "open",
+              });
+
+              for (const pr of prs) {
+                await processOR(owner, repo, pr.number);
               }
-              
-              console.log('PR label management completed successfully');
-            } catch (error) {
-              console.error(`Error in main script execution: ${error.message}`);
-              core.setFailed(`Action failed with error: ${error.message}`);
             }
+          }
+
+          run().catch(console.error);
