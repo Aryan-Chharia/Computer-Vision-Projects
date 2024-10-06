@@ -2,10 +2,13 @@ name: Sync PR Labels with Linked Issue
 
 on:
   pull_request:
-    types: [opened, edited, synchronize]
+    types:
+      - opened
+      - edited
+      - synchronize
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * **'
 
 jobs:
   sync-labels:
@@ -13,56 +16,48 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Setup GitHub CLI
-        uses: cli/cli@v2
-
-      - name: Get PR information
-        id: pr_info
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Check for linked issue in PR description
+        id: check_issue
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          if [ -z "$PR_NUMBER" ]; then
-            PR_NUMBER=$(gh pr list --limit 1000 --json number --jq '.[].number' | head -n 1)
-          fi
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
-          
-          PR_BODY=$(gh pr view $PR_NUMBER --json body --jq '.body')
-          echo "PR_BODY<<EOF" >> $GITHUB_OUTPUT
-          echo "$PR_BODY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Extract issue number and get labels
-        id: issue_info
-        run: |
-          PR_BODY="${{ steps.pr_info.outputs.PR_BODY }}"
-          ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oP '(?<=\#)\d+' | head -n 1)
-          
-          if [ -n "$ISSUE_NUMBER" ]; then
-            echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
-            LABELS=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | tr '\n' ',' | sed 's/,$//')
-            echo "LABELS=$LABELS" >> $GITHUB_OUTPUT
+          pr_body="${{ github.event.pull_request.body }}"
+          issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+')
+          if [ -z "$issue_number" ]; then
+            echo "No issue number found in the PR description."
+            echo "::set-output name=issue_number::"
           else
-            echo "ISSUE_NUMBER=" >> $GITHUB_OUTPUT
-            echo "LABELS=" >> $GITHUB_OUTPUT
+            echo "Found issue number: $issue_number"
+            echo "::set-output name=issue_number::$issue_number"
           fi
-
-      - name: Apply labels to PR
-        if: steps.issue_info.outputs.LABELS != ''
+      - name: Get issue labels
+        if: steps.check_issue.outputs.issue_number != ''
+        id: get_issue_labels
         run: |
-          PR_NUMBER=${{ steps.pr_info.outputs.PR_NUMBER }}
-          LABELS="${{ steps.issue_info.outputs.LABELS }}"
-          gh pr edit $PR_NUMBER --add-label "$LABELS"
-
+          issue_number=${{ steps.check_issue.outputs.issue_number }}
+          response=$(gh api "repos/${{ github.repository }}/issues/$issue_number" --jq '.labels')
+          if [ -z "$response" ]; then
+            echo "No labels found on the linked issue."
+            echo "::set-output name=labels::"
+          else
+            labels=$(echo "$response" | jq -r '.[].name' | paste -sd "," -)
+            echo "Labels found: $labels"
+            echo "::set-output name=labels::$labels"
+          fi
+      - name: Apply labels to the PR
+        if: steps.get_issue_labels.outputs.labels != ''
+        run: |
+          labels=${{ steps.get_issue_labels.outputs.labels }}
+          gh api --method PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}" \
+            -f labels="$labels"
       - name: Comment if no issue found
-        if: steps.issue_info.outputs.ISSUE_NUMBER == ''
+        if: steps.check_issue.outputs.issue_number == ''
         run: |
-          PR_NUMBER=${{ steps.pr_info.outputs.PR_NUMBER }}
-          gh pr comment $PR_NUMBER --body "Please link an issue number in the description using the format #issue_number."
-
+          pr_number=${{ github.event.pull_request.number }}
+          gh pr comment "$pr_number" --body "Please link an issue number in the description."
       - name: Notify if no labels on linked issue
-        if: steps.issue_info.outputs.ISSUE_NUMBER != '' && steps.issue_info.outputs.LABELS == ''
+        if: steps.get_issue_labels.outputs.labels == ''
         run: |
           echo "No labels found on the linked issue. No labels will be applied."
-
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
