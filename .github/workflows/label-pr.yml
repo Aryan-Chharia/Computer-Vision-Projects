@@ -1,63 +1,41 @@
-name: Sync PR Labels with Linked Issue
+name: Extract Issue Numbers from All Open PRs
 
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
 
 jobs:
-  sync-labels:
+  extract-issue-numbers:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Check for linked issue in PR description
-        id: check_issue
+
+      - name: Setup GitHub CLI
+        uses: cli/setup-gh@v1
+
+      - name: Get all open PRs and extract issue numbers
         run: |
-          pr_body="${{ github.event.pull_request.body }}"
-          issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+')
-          if [ -z "$issue_number" ]; then
-            echo "No issue number found in the PR description."
-            echo "::set-output name=issue_number::"
-          else
-            echo "Found issue number: $issue_number"
-            echo "::set-output name=issue_number::$issue_number"
-          fi
-      - name: Get issue labels
-        if: steps.check_issue.outputs.issue_number != ''
-        id: get_issue_labels
+          # Get all open PRs
+          prs=$(gh pr list --state open --limit 1000 --json number,body --jq '.[]')
+
+          # Process each PR
+          echo "$prs" | while read -r pr; do
+            pr_number=$(echo "$pr" | jq -r '.number')
+            pr_body=$(echo "$pr" | jq -r '.body')
+            
+            # Extract issue number from PR body
+            issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+' | head -n 1)
+            
+            if [ -n "$issue_number" ]; then
+              echo "PR #$pr_number is linked to issue #$issue_number"
+            else
+              echo "PR #$pr_number has no linked issue number"
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Provide summary
         run: |
-          issue_number=${{ steps.check_issue.outputs.issue_number }}
-          response=$(gh api "repos/${{ github.repository }}/issues/$issue_number" --jq '.labels')
-          if [ -z "$response" ]; then
-            echo "No labels found on the linked issue."
-            echo "::set-output name=labels::"
-          else
-            labels=$(echo "$response" | jq -r '.[].name' | paste -sd "," -)
-            echo "Labels found: $labels"
-            echo "::set-output name=labels::$labels"
-          fi
-      - name: Apply labels to the PR
-        if: steps.get_issue_labels.outputs.labels != ''
-        run: |
-          labels=${{ steps.get_issue_labels.outputs.labels }}
-          gh api --method PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}" \
-            -f labels="$labels"
-      - name: Comment if no issue found
-        if: steps.check_issue.outputs.issue_number == ''
-        run: |
-          pr_number=${{ github.event.pull_request.number }}
-          gh pr comment "$pr_number" --body "Please link an issue number in the description."
-      - name: Notify if no labels on linked issue
-        if: steps.get_issue_labels.outputs.labels == ''
-        run: |
-          echo "No labels found on the linked issue. No labels will be applied."
+          echo "Processing of all open PRs is complete."
+          echo "Please check the job log for details on each PR."
