@@ -1,0 +1,6 @@
+pandas == 2.2.2
+mediapipe == 0.10.14
+scikit-learn == 1.5.1
+numpy == 1.26.4
+matplotlib == 3.9.1
+opencv-python == 4.10.0.84
