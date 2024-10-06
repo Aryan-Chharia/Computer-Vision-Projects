@@ -10,30 +10,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup GitHub CLI
-        uses: cli/setup-gh@v1
-
       - name: Get all open PRs and extract issue numbers
-        run: |
-          # Get all open PRs
-          prs=$(gh pr list --state open --limit 1000 --json number,body --jq '.[]')
-
-          # Process each PR
-          echo "$prs" | while read -r pr; do
-            pr_number=$(echo "$pr" | jq -r '.number')
-            pr_body=$(echo "$pr" | jq -r '.body')
-            
-            # Extract issue number from PR body
-            issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+' | head -n 1)
-            
-            if [ -n "$issue_number" ]; then
-              echo "PR #$pr_number is linked to issue #$issue_number"
-            else
-              echo "PR #$pr_number has no linked issue number"
-            fi
-          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all open PRs
+          page=1
+          while true; do
+            prs=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                 "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&per_page=100&page=$page")
+            
+            # Break if no more PRs
+            if [ "$(echo "$prs" | jq length)" -eq 0 ]; then
+              break
+            fi
+            
+            # Process each PR
+            echo "$prs" | jq -c '.[]' | while read -r pr; do
+              pr_number=$(echo "$pr" | jq -r '.number')
+              pr_body=$(echo "$pr" | jq -r '.body')
+              
+              # Extract issue number from PR body
+              issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+' | head -n 1)
+              
+              if [ -n "$issue_number" ]; then
+                echo "PR #$pr_number is linked to issue #$issue_number"
+              else
+                echo "PR #$pr_number has no linked issue number"
+              fi
+            done
+            
+            page=$((page + 1))
+          done
 
       - name: Provide summary
         run: |
