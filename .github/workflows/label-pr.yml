@@ -32,7 +32,7 @@ jobs:
         run: |
           pr_body="${{ github.event.pull_request.body }}"
           issue_number=$(echo "$pr_body" | grep -oP '(?<=#)\d+')
-
+      
           if [ -z "$issue_number" ]; then
             echo "No issue number found in the PR description."
             echo "::set-output name=issue_number::"
@@ -40,6 +40,8 @@ jobs:
             echo "Found issue number: $issue_number"
             echo "::set-output name=issue_number::$issue_number"
           fi
+        shell: bash
+
 
       - name: Get issue labels
         if: steps.check_issue.outputs.issue_number != ''
