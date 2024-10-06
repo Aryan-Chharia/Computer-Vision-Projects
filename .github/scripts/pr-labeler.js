@@ -6,10 +6,17 @@ async function run() {
     const token = process.env.GITHUB_TOKEN;
     const octokit = github.getOctokit(token);
     const context = github.context;
-    const pr = context.payload.pull_request;
 
+    // Check if this is a pull request event
+    if (context.eventName !== 'pull_request') {
+      console.log('This action is designed to run only on pull_request events.');
+      console.log('Current event:', context.eventName);
+      return; // Exit gracefully without setting a failure
+    }
+
+    const pr = context.payload.pull_request;
     if (!pr) {
-      core.setFailed('This action can only be run on pull_request events');
+      core.setFailed('Unable to get pull request information from the event payload.');
       return;
     }
 
