@@ -17,6 +17,11 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install @actions/github
+
       - name: Run PR Label Script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
