@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, edited]
   schedule:
-    - cron: '0 * * * *'  # Run every hour
+    - cron: '* * * * *'  # Run every minute
 
 jobs:
   pr-label-automation:
