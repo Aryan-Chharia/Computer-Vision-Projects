@@ -9,7 +9,7 @@ Image Segmentation: Explore techniques that partition an image into meaningful s
 ### 📖 How to Get Started
 To get started with any of the projects, simply clone the repository:
 
-git clone [https://github.com/diva711/Computer-Vision-Projects.git](https://github.com/Aryan-Chharia/Computer-Vision-Projects.git)
+git clone [https://github.com/Aryan-Chharia/Computer-Vision-Projects.git](https://github.com/Aryan-Chharia/Computer-Vision-Projects.git)
 Navigate into the project directory:
 
 cd Computer-Vision-Projects
