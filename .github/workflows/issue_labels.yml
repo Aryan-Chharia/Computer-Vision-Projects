@@ -1,90 +1,39 @@
-name: PR Label Automation
+name: PR Issue Labeler
 
 on:
   pull_request:
-    types: [opened, reopened, edited]
-  schedule:
-    - cron: '*/5 * * * *'  # Run every 5 minutes
+    types: [opened, edited, reopened]
+  workflow_dispatch: # Manually trigger the workflow for existing open PRs
 
 jobs:
-  pr-label-automation:
+  labeler:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+    - name: Check PR description for issue number
+      id: check_issue
+      run: |
+        ISSUE_NUMBER=$(echo "${{ github.event.pull_request.body }}" | grep -oP '#\K\d+')
+        echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        run: npm install @octokit/rest
+    - name: Handle missing issue number
+      if: env.issue_number == ''
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body "Please include an issue number (e.g., #123) in the description."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run PR label automation script
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          const { Octokit } = require("@octokit/rest");
-          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-
-          async function processPR(owner, repo, pull_number) {
-            const { data: pr } = await octokit.pulls.get({
-              owner,
-              repo,
-              pull_number,
-            });
-
-            const issueRegex = /#(\d+)/;
-            const match = pr.body.match(issueRegex);
-
-            if (match) {
-              const issueNumber = parseInt(match[1]);
-              const { data: issue } = await octokit.issues.get({
-                owner,
-                repo,
-                issue_number: issueNumber,
-              });
-
-              if (issue.labels.length > 0) {
-                await octokit.issues.addLabels({
-                  owner,
-                  repo,
-                  issue_number: pull_number,
-                  labels: issue.labels.map(label => label.name),
-                });
-                console.log(`Added labels to PR #${pull_number}`);
-              } else {
-                console.log(`Issue #${issueNumber} has no labels`);
-              }
-            } else {
-              await octokit.issues.createComment({
-                owner,
-                repo,
-                issue_number: pull_number,
-                body: "Please include the related issue number in the PR description.",
-              });
-              console.log(`Commented on PR #${pull_number} to request issue number`);
-            }
-          }
-
-          async function run() {
-            const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-            
-            if (process.env.GITHUB_EVENT_NAME === "pull_request") {
-              const pull_number = process.env.GITHUB_EVENT.pull_request.number;
-              await processPR(owner, repo, pull_number);
-            } else {
-              const { data: prs } = await octokit.pulls.list({
-                owner,
-                repo,
-                state: "open",
-              });
-
-              for (const pr of prs) {
-                await processPR(owner, repo, pr.number);
-              }
-            }
-          }
-
-          run().catch(console.error);
+    - name: Fetch issue labels and apply to PR
+      if: env.issue_number != ''
+      run: |
+        # Get issue labels
+        LABELS=$(gh issue view ${{ env.issue_number }} --json labels --jq '.labels[].name')
+        # Apply labels to the PR
+        for LABEL in $LABELS; do
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL"
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
