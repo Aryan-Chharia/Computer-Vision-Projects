@@ -37,7 +37,7 @@ pip install opencv-contrib-python imageio tensorflow matplotlib pandas numpy
 ## DeepFake Video Detection
 
 ### Dataset
-
+- Download the dataset from the following link: https://drive.google.com/drive/folders/1BWEzxq0exLO_8vinYsQERCHlGBChQ5i8?usp=sharing
 - The training and test datasets consist of DeepFake videos, with metadata for labeling as "REAL" or "FAKE".
 - Dataset paths:
   - `TRAIN_SAMPLE_FOLDER`: `C:\Users\Spandana\Gen AI Internship\Deep_fake\dataset\train_sample_videos`
