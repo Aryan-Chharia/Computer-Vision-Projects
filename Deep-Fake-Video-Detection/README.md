@@ -1,7 +1,3 @@
-Here’s a sample `README.md` file for the project:
-
----
-
 # DeepFake Video Detection and Time Series Prediction using LSTM
 
 ## Overview
