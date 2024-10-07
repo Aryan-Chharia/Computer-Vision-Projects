@@ -12,6 +12,8 @@ while True:
     for barcode in decode(img):
         myData = barcode.data.decode('utf-8')
         print(myData)
+        with open("result.txt", "a") as file:
+            file.write(myData + "\n")                   #Write scanned data into text file
         pts = np.array([barcode.polygon],np.int32)
         pts = pts.reshape((-1,1,2))
         cv2.polylines(img,[pts],True,(255,0,255),5) # Draws a polygon around the detected barcode/QR code.
