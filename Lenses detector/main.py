@@ -75,7 +75,7 @@ def finalize_htmlfile(htmlfile_path):
         </html>
         """)
 def main():
-    # Load the Haar cascade for eyeglass detection
+    # Load the Haar cascade for eyelenses detection
     eyelenses_cascade = cv2.CascadeClassifier('haarcascade_eye_tree_eyeglasses.xml')
     
     htmlfile_path = 'results.html'
@@ -91,7 +91,7 @@ def main():
         if not ret:
             break
 
-        # Detect eyeglasses
+        # Detect eyelenses
         eyelenses = detect_eyelenses(frame, eyelenses_cascade)
 
         # Creating rectangle on the detected lenses and log results
