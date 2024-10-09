@@ -42,6 +42,53 @@ classDic = {
     8: 2        # Food waste
 }
 
+correct_predictions = 0
+total_predictions = 0
+
+# Write results to result.html
+def write_to_html(waste_type, bin_type, accuracy):
+    with open('result.html', 'w') as f:
+        f.write(f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Waste Classification Results</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    background-color: #f4f4f4;
+                }}
+                .container {{
+                    margin: 50px auto;
+                    padding: 20px;
+                    background-color: #fff;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    width: 50%;
+                }}
+                h1 {{
+                    color: #6ca2dd;
+                }}
+                p {{
+                    font-size: 18px;
+                    color: #333;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Waste Classification Results</h1>
+                <p><strong>Waste Type:</strong> {waste_type}</p>
+                <p><strong>Suggested Bin:</strong> {bin_type}</p>
+                <p><strong>Current Accuracy:</strong> {accuracy:.2f}%</p>
+            </div>
+        </body>
+        </html>
+        """)
+
 while True:
     # Read a frame from the webcam
     _, img = cap.read()
