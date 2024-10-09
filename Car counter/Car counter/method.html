@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            margin: 20px; 
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #6ca2dd;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            margin: 0.5em 0;
+        }
+        code {
+            background: #e8e8e8; 
+            padding: 2px 5px; 
+            border-radius: 3px;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Counter</h1>
+    <p>This project utilizes several computer vision techniques to accurately detect and count cars in a video feed.</p>
+
+    <h2>1. Background Subtraction</h2>
+    <p>The system uses background subtraction to isolate moving objects (vehicles) from the static background. The <code>createBackgroundSubtractorMOG2</code> method from OpenCV is employed, which is effective in detecting shadows and variations in the background.</p>
+
+    <h2>2. Contour Detection</h2>
+    <p>Once the moving objects are isolated, contours are detected using the <code>findContours</code> function. This function identifies the boundaries of the detected vehicles.</p>
+
+    <h2>3. Vehicle Counting</h2>
+    <p>The system maintains a list of detected vehicles and counts how many cross a predefined counting line. This is done by checking the position of the center points of the detected vehicles against the counting line.</p>
+
+    <h2>4. HTML Reporting</h2>
+    <p>The current vehicle count is saved in an HTML file each time a vehicle crosses the counting line, providing a simple way to review the results.</p>
+
+    <h2>5. Libraries Used</h2>
+    <ul>
+        <li><code>OpenCV</code>: For image processing and computer vision tasks.</li>
+        <li><code>NumPy</code>: For numerical operations and array manipulations.</li>
+    </ul>
+
+    <h2>6. Real-Time Processing</h2>
+    <p>The system processes video frames in real-time, providing immediate feedback on vehicle counts as they pass through the detection line.</p>
+</body>
+</html>
