@@ -2,70 +2,106 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load the image
-img = cv2.imread('C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\OIP.jpg')
-img = cv2.resize(img, (720, 640))
-frame = img.copy()
-
-# ------------ Model for Age detection --------#
+# Load age and gender detection models
 age_weights = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_net.caffemodel"
 age_config = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_deploy.prototxt"
-age_Net = cv2.dnn.readNet(age_config, age_weights)
+gender_weights = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\gender_net.caffemodel"
+gender_config = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\gender_deploy.prototxt"
 
-# List of age ranges corresponding to the model's output
-ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)',
+# Load pre-trained models for age and gender detection
+age_net = cv2.dnn.readNet(age_config, age_weights)
+gender_net = cv2.dnn.readNet(gender_config, gender_weights)
+
+# List of age ranges and genders
+age_list = ['(0-2)', '(4-6)', '(8-12)', '(15-20)',
            '(25-32)', '(38-43)', '(48-53)', '(60-100)']
+gender_list = ['Male', 'Female']
 model_mean = (78.4263377603, 87.7689143744, 114.895847746)
 
-# Store the image dimensions
-fH = img.shape[0]
-fW = img.shape[1]
-
 # Load the pre-trained Haar Cascade face detector
-# Option 1: Using OpenCV default haarcascade
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Convert image to grayscale for face detection
-img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+def detect_and_predict_age_gender(frame):
+    try:
+        img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(img_gray, scaleFactor=1.1, minNeighbors=5)
 
-# Detect faces using Haar Cascade
-faces = face_cascade.detectMultiScale(img_gray, scaleFactor=1.1, minNeighbors=5)
+        if len(faces) == 0:
+            print("No face detected.")
+        else:
+            for (x, y, w, h) in faces:
+                box = [x, y, x + w, y + h]
+                face = frame[box[1]:box[3], box[0]:box[2]]
 
-# If no faces are detected
-if len(faces) == 0:
-    mssg = 'No face detected'
-    cv2.putText(img, f'{mssg}', (40, 40),
-                cv2.FONT_HERSHEY_SIMPLEX, 2, (200), 2)
-    cv2.imshow('Output', img)
-    cv2.waitKey(0)
+                # Preprocess face for model input
+                blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), model_mean, swapRB=False)
 
-else:
-    mssg = 'Face Detected'
-    # --------- Bounding Face ---------#
-    for (x, y, w, h) in faces:
-        box = [x, y, x + w, y + h]
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 200, 200), 2)
+                # Age Prediction
+                age_net.setInput(blob)
+                age_preds = age_net.forward()
+                age = age_list[age_preds[0].argmax()]
 
-        face = frame[box[1]:box[3], box[0]:box[2]]
+                # Gender Prediction
+                gender_net.setInput(blob)
+                gender_preds = gender_net.forward()
+                gender = gender_list[gender_preds[0].argmax()]
 
-        # ----- Image preprocessing --------#
-        blob = cv2.dnn.blobFromImage(
-            face, 1.0, (227, 227), model_mean, swapRB=False)
+                # Draw bounding box and label
+                label = f'{gender}, {age}'
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-        # -------Age Prediction---------#
-        age_Net.setInput(blob)
-        age_preds = age_Net.forward()
-        age = ageList[age_preds[0].argmax()]
+        return frame
 
-        cv2.putText(frame, f'{mssg}: {age}', (box[0], box[1] - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA)
+    except Exception as e:
+        print(f"Error during detection: {e}")
+        return frame
 
-    # Display the output using Matplotlib
-    plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
-    plt.show()
+# Real-time age and gender detection using webcam
+def real_time_detection():
+    cap = cv2.VideoCapture(0)  # Start webcam
+    if not cap.isOpened():
+        print("Error: Unable to access the camera")
+        return
 
-    # Use OpenCV to display the result
-    cv2.imshow('Output', frame)
-    cv2.waitKey(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Unable to read from camera")
+            break
+
+        # Perform detection and predictions
+        result_frame = detect_and_predict_age_gender(frame)
+
+        # Display result
+        cv2.imshow('Age and Gender Detection', result_frame)
+
+        # Break the loop when 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
     cv2.destroyAllWindows()
+
+# Save processed image
+def save_image(image, output_path="output_image.jpg"):
+    try:
+        cv2.imwrite(output_path, image)
+        print(f"Image saved at {output_path}")
+    except Exception as e:
+        print(f"Error saving image: {e}")
+
+if __name__ == "__main__":
+    # Real-time detection
+    real_time_detection()
+
+    # For static image, uncomment the following:
+    # img = cv2.imread('C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\OIP.jpg')
+    # img = cv2.resize(img, (720, 640))
+    # result_img = detect_and_predict_age_gender(img)
+    # plt.imshow(cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB))
+    # plt.axis('off')
+    # plt.show()
+
+    # Option to save image
+    # save_image(result_img, 'detected_output.jpg')
