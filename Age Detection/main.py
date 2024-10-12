@@ -1,15 +1,16 @@
 import cv2
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the image
-img = cv2.imread('C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\OIP.jpg')
+img = cv2.imread('/content/Atharv Somani.jpg')
 img = cv2.resize(img, (720, 640))
 frame = img.copy()
 
 # ------------ Model for Age detection --------#
-age_weights = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_net.caffemodel"
-age_config = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_deploy.prototxt"
+age_weights = "/content/Computer-Vision-Projects/Age Detection/Dataset/age_net.caffemodel"
+age_config = "/content/Computer-Vision-Projects/Age Detection/Dataset/age_deploy.prototxt"
 age_Net = cv2.dnn.readNet(age_config, age_weights)
 
 # List of age ranges corresponding to the model's output
@@ -23,7 +24,7 @@ fW = img.shape[1]
 
 # Load the pre-trained Haar Cascade face detector
 # Option 1: Using OpenCV default haarcascade
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/content/Computer-Vision-Projects/Age Detection/Dataset/haarcascade_frontalface_default.xml')
 
 # Convert image to grayscale for face detection
 img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -66,6 +67,6 @@ else:
     plt.show()
 
     # Use OpenCV to display the result
-    cv2.imshow('Output', frame)
+    cv2_imshow('Output', frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
