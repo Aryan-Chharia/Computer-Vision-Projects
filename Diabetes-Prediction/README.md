@@ -29,17 +29,19 @@ Calibration curves are plotted to assess the reliability of the predicted probab
 The accuracy and evaluation metrics such as precision, recall, and F1
 score are calculated and compared across different models.
 
-![img](images\1.PNG)
+![img2](https://raw.githubusercontent.com/Aryan-Chharia/Computer-Vision-Projects/140a77c50db1fce9d3d6c0daadb10212c2f1a838/Diabetes-Prediction/images/1.PNG)
 
 
 ## Result 
-![img](images\3.PNG)
-![img](images\3.PNG)
+![img](https://raw.githubusercontent.com/Aryan-Chharia/Computer-Vision-Projects/140a77c50db1fce9d3d6c0daadb10212c2f1a838/Diabetes-Prediction/images/4.PNG)
+![img1](https://raw.githubusercontent.com/Aryan-Chharia/Computer-Vision-Projects/140a77c50db1fce9d3d6c0daadb10212c2f1a838/Diabetes-Prediction/images/2.PNG))
 
 
 ## Evaluation
-![Model Eval](images\4.PNG)
-![Model Eval](images\2.PNG)
+
+
+![Description of Image](https://raw.githubusercontent.com/Aryan-Chharia/Computer-Vision-Projects/140a77c50db1fce9d3d6c0daadb10212c2f1a838/Diabetes-Prediction/images/3.PNG)
+
 
 
 
