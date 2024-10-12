@@ -55,7 +55,7 @@ def compare():
     sig1 = preprocess_signature(path1)
     sig2 = preprocess_signature(path2)
 
-    # Compare signatures
+    # Compare both the signatures
     similarity_score = compare_signatures(sig1, sig2)
 
     # Set a threshold for verification
