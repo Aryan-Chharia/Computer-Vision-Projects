@@ -1,0 +1,13 @@
+flask
+opencv-python
+tensorflow
+numpy
+pyspellchecker
+pandas
+fuzzywuzzy
+pyttsx3
+googletrans
+gtts
+pygame
+setuptools
+wheel
