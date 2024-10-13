@@ -20,7 +20,7 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # Relative path
 # Import YOLO-related modules
 from models.common import DetectMultiBackend  # type: ignore
 from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams  # type: ignore
-from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements,
+from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, # type: ignore
                            colorstr, increment_path, non_max_suppression, print_args, scale_boxes,
                            strip_optimizer, xyxy2xywh)
 from utils.plots import Annotator, colors, save_one_box  # type: ignore
