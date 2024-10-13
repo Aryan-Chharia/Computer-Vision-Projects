@@ -7,8 +7,26 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>Scanned Data</h1>
-    <pre>{{ scanned_data }}</pre>
-    <a href="/download-result">Download Scanned Data</a>
+    <header>
+        <h1>Scanned Data</h1>
+    </header>
+    
+    <main>
+        <section>
+            <h2>Results</h2>
+            <pre>{{ scanned_data }}</pre>
+        </section>
+
+        <section>
+            <h2>Actions</h2>
+            <p>
+                <a href="/download-result" class="download-button">Download Scanned Data</a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 keshav.  All rights reserved.</p>
+    </footer>
 </body>
 </html>
