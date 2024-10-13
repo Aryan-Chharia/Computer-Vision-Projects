@@ -1,44 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Eyeglass Detection Results</h1>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Coordinates (x, y, width, height)</th>
+        </tr>
+        <!-- You can add rows here dynamically using JavaScript or render them from your server -->
+    </table>
 
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Detection Results</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 20px;
-                    background-color: #f4f4f4;
-                }
-                h1 {
-                    text-align: center;
-                    color: #333;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 20px;
-                }
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                }
-                th {
-                    background-color: #4CAF50;
-                    color: white;
-                }
-                tr:hover {
-                    background-color: #f1f1f1;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Eyeglass Detection Results</h1>
-            <table>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Coordinates (x, y, width, height)</th>
-                </tr>
-        
+    <script>
+        // Example data - this should be replaced with actual data from your detection model
+        const results = [
+            { timestamp: '2024-10-12 10:00:00', coordinates: '100, 150, 50, 30' },
+            { timestamp: '2024-10-12 10:05:00', coordinates: '200, 250, 55, 35' },
+            { timestamp: '2024-10-12 10:10:00', coordinates: '300, 350, 60, 40' }
+        ];
+
+        const table = document.querySelector('table');
+
+        results.forEach(result => {
+            const row = document.createElement('tr');
+            const timestampCell = document.createElement('td');
+            const coordinatesCell = document.createElement('td');
+
+            timestampCell.textContent = result.timestamp;
+            coordinatesCell.textContent = result.coordinates;
+
+            row.appendChild(timestampCell);
+            row.appendChild(coordinatesCell);
+            table.appendChild(row);
+        });
+    </script>
+</body>
+</html>
