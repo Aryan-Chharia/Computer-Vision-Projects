@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 # Function to load the age detection model
 def load_age_model(age_config_path, age_weights_path):
@@ -23,10 +24,18 @@ def predict_age(face, age_net, model_mean):
     age = age_list[age_preds[0].argmax()]
     return age
 
+# Function to save the output image
+def save_output_image(frame, output_path):
+    cv2.imwrite(output_path, frame)
+    print(f"Output image saved at {output_path}")
+
 # Main function for processing the image
 def process_image(image_path):
     # Load the image
     img = cv2.imread(image_path)
+    if img is None:
+        print("Error: Unable to load image.")
+        return
     img = cv2.resize(img, (720, 640))
     frame = img.copy()
 
@@ -66,12 +75,59 @@ def process_image(image_path):
         plt.axis('off')
         plt.show()
 
+        # Show the output window with OpenCV
         cv2.imshow('Output', frame)
         cv2.waitKey(0)
 
+        # Save the output image
+        output_path = os.path.join(os.path.dirname(image_path), "output.jpg")
+        save_output_image(frame, output_path)
+
     cv2.destroyAllWindows()
 
-# Execute the main function
+# Function for real-time detection using webcam
+def real_time_detection():
+    age_weights = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_net.caffemodel"
+    age_config = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_deploy.prototxt"
+    age_net = load_age_model(age_config, age_weights)
+    
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Unable to access webcam.")
+            break
+
+        faces = detect_faces(frame, face_cascade)
+
+        if len(faces) > 0:
+            for (x, y, w, h) in faces:
+                box = [x, y, x + w, y + h]
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                face = frame[box[1]:box[3], box[0]:box[2]]
+                age = predict_age(face, age_net, (78.4263377603, 87.7689143744, 114.895847746))
+                cv2.putText(frame, f'Age: {age}', (box[0], box[1] - 10), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+
+        cv2.imshow('Real-Time Age Detection', frame)
+
+        # Break the loop on 'q' key press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+# Execute the main function or real-time detection based on user input
 if __name__ == "__main__":
-    image_path = 'C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\OIP.jpg'
-    process_image(image_path)
+    choice = input("Choose an option:\n1. Process Image\n2. Real-Time Detection\nEnter choice (1 or 2): ")
+
+    if choice == '1':
+        image_path = input("Enter the image path: ")
+        process_image(image_path)
+    elif choice == '2':
+        real_time_detection()
+    else:
+        print("Invalid choice. Please select 1 or 2.")
