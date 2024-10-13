@@ -11,10 +11,10 @@ Follow PEP 8 coding standards.
 Usage:
     python main.py --image <path_to_image>
 """
-
 import argparse
 import cv2
-from ultralytics import YOLO
+import os
+from ultralytics import YOLO # type: ignore
 
 # Function to perform fire detection using YOLOv8
 def detect_fire(image_path):
@@ -41,10 +41,19 @@ def detect_fire(image_path):
 
     # Display the results
     print(f"Fire detected in the image: {image_path}")
-    results.show()  # This will open a window to display the image with detection results
+    
+    # Show detection results using OpenCV if results.show() does not work
+    annotated_image = results[0].plot()  # Get the annotated image
+    cv2.imshow("Fire Detection", annotated_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    # Ensure the directory exists before saving results
+    save_dir = "runs/detect/fire_detection"
+    os.makedirs(save_dir, exist_ok=True)  # Create directory if it doesn't exist
 
     # Save the results image
-    results.save(save_dir="runs/detect/fire_detection")
+    results.save(save_dir=save_dir)
 
 if __name__ == "__main__":
     # Set up argument parsing for the input image
@@ -54,4 +63,3 @@ if __name__ == "__main__":
 
     # Call the detection function with the input image
     detect_fire(args.image)
-
