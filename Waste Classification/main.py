@@ -1,6 +1,6 @@
 import os
-import cvzone
-from cvzone.ClassificationModule import Classifier
+import cvzone # type: ignore
+from cvzone.ClassificationModule import Classifier # type: ignore
 import cv2
 
 # Open the webcam 
@@ -55,28 +55,7 @@ def write_to_html(waste_type, bin_type, accuracy):
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Waste Classification Results</title>
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    text-align: center;
-                    background-color: #f4f4f4;
-                }}
-                .container {{
-                    margin: 50px auto;
-                    padding: 20px;
-                    background-color: #fff;
-                    border-radius: 10px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    width: 50%;
-                }}
-                h1 {{
-                    color: #6ca2dd;
-                }}
-                p {{
-                    font-size: 18px;
-                    color: #333;
-                }}
-            </style>
+            <link rel="stylesheet" href="static/style.css">
         </head>
         <body>
             <div class="container">
@@ -100,10 +79,9 @@ while True:
     imgBackground = cv2.imread('Resources/bgimg.png')
 
     # Get the prediction 
-    predection = classifier.getPrediction(img)
+    prediction = classifier.getPrediction(img)
 
-    classID = predection[1]
-    print(classID)
+    classID = prediction[1]
     if classID != 0:
         # Overlay the corresponding waste image onto the background
         imgBackground = cvzone.overlayPNG(imgBackground, imgWasteList[classID - 1], (909, 127))
