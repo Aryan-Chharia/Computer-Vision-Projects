@@ -54,10 +54,6 @@ class handDetector:
                         # Draw a circle for each landmark
                         cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
 
-                    # If the landmark is the thumb tip (id 4), draw a red dot
-                    # if id == 4:
-                    #     cv2.circle(img, (cx, cy), 15, (0, 0, 255), cv2.FILLED)  # Red dot on thumb tip
-
                 if xList and yList:
                     xmin, xmax = min(xList), max(xList)
                     ymin, ymax = min(yList), max(yList)
@@ -105,6 +101,11 @@ class handDetector:
 def main():
     pTime = 0
     cap = cv2.VideoCapture(0)  # Make sure to change index to 0 for default camera
+
+    if not cap.isOpened():  # Check if the webcam opens successfully
+        print("Error: Unable to open the webcam.")
+        return
+
     detector = handDetector()
 
     while True:
@@ -116,12 +117,12 @@ def main():
         img = detector.findHands(img)
         lmList, bbox = detector.findPosition(img)
 
-        if len(lmList) != 0:
+        if lmList:
             print(lmList[4])  # Example of printing specific landmark positions
 
         # Calculate FPS
         cTime = time.time()
-        fps = 1 / (cTime - pTime)
+        fps = 1 / (cTime - pTime) if (cTime - pTime) > 0 else 0  # Prevent division by zero
         pTime = cTime
 
         # Display FPS on image
