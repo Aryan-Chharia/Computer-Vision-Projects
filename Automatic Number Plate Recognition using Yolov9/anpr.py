@@ -3,6 +3,8 @@ import os
 import platform
 import sys
 from pathlib import Path
+from tqdm import tqdm  # Import tqdm for progress bar
+import json  # Import json for output format
 
 import torch
 import easyocr
@@ -16,17 +18,19 @@ if str(ROOT) not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # Relative path
 
 # Import YOLO-related modules
-from models.common import DetectMultiBackend # type: ignore
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams # type: ignore
-from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, # type: ignore
+from models.common import DetectMultiBackend  # type: ignore
+from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams  # type: ignore
+from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements,
                            colorstr, increment_path, non_max_suppression, print_args, scale_boxes,
                            strip_optimizer, xyxy2xywh)
-from utils.plots import Annotator, colors, save_one_box # type: ignore
-from utils.torch_utils import select_device, smart_inference_mode # type: ignore
+from utils.plots import Annotator, colors, save_one_box  # type: ignore
+from utils.torch_utils import select_device, smart_inference_mode  # type: ignore
 
-# Initialize EasyOCR reader
-reader = easyocr.Reader(['en'], gpu=True)
+# Initialize EasyOCR reader with custom languages
+def initialize_reader(languages):
+    return easyocr.Reader(languages, gpu=True)
 
+# Perform OCR on an image
 def perform_ocr_on_image(img, coordinates):
     """
     Perform OCR on a cropped region of the image based on the given coordinates.
@@ -56,6 +60,7 @@ def run(
         device='',  # CUDA device
         view_img=False,  # Show results
         save_txt=False,  # Save results to *.txt
+        save_json=False,  # Save results to JSON
         save_conf=False,  # Save confidences in --save-txt labels
         save_crop=False,  # Save cropped prediction boxes
         nosave=False,  # Do not save images/videos
@@ -73,7 +78,11 @@ def run(
         half=False,  # Use FP16 half-precision inference
         dnn=False,  # Use OpenCV DNN for ONNX inference
         vid_stride=1,  # Video frame-rate stride
+        languages=['en']  # List of languages for OCR
 ):
+    global reader
+    reader = initialize_reader(languages)  # Initialize OCR reader with specified languages
+
     # Check and prepare the source
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # Save inference images
@@ -104,12 +113,18 @@ def run(
         dataset = LoadScreenshots(source, img_size=imgsz, stride=stride, auto=pt)
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
+
+    # Prepare for output storage
+    results_data = []  # To store results for JSON output
+
     vid_path, vid_writer = [None] * bs, [None] * bs
 
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # Warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
-    for path, im, im0s, vid_cap, s in dataset:
+    
+    # Use tqdm for progress bar
+    for path, im, im0s, vid_cap, s in tqdm(dataset, desc="Processing", unit="image"):
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
             im = im.half() if model.fp16 else im.float()  # uint8 to fp16/32
@@ -143,75 +158,76 @@ def run(
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # Normalization gain whwh
             imc = im0.copy() if save_crop else im0  # For save_crop
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
+
             if len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
 
                 # Print results
                 for c in det[:, 5].unique():
-                    n = (det[:, 5] == c).sum()  # Detections per class
-                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # Add to string
+                    n = (det[:, 5] == c).sum()  # detections per class
+                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}; "  # add to string
 
                 # Write results
-                for *xyxy, conf, cls in reversed(det):
-                    if save_txt:  # Write to file
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # Normalized xywh
-                        line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # Label format
-                        with open(f'{txt_path}.txt', 'a') as f:
-                            f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                for *xyxy, conf, cls in reversed(det):  # xyxy = (x1, y1, x2, y2)
+                    if save_txt:  # Save to *.txt
+                        with open(txt_path + '.txt', 'a') as f:
+                            f.write(f"{int(cls)} {conf:.2f} {' '.join(map(str, xyxy))}\n")
+                    if save_conf:  # Save confidences
+                        with open(txt_path + '.txt', 'a') as f:
+                            f.write(f"{conf:.2f}\n")
 
-                    if save_img or save_crop or view_img:  # Add bbox to image
-                        c = int(cls)  # Integer class
-                        label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
+                    if save_crop:  # Save cropped predictions
+                        save_one_box(xyxy, imc, save_path=save_dir / 'crops' / names[int(cls)] / f"{Path(p).stem}.jpg", BGR=True)
 
-                        # Perform OCR and update the label
-                        text_ocr = perform_ocr_on_image(im0, xyxy)
-                        if text_ocr:
-                            label = f'{label}, OCR: {text_ocr}' if label else f'OCR: {text_ocr}'
+                    # Annotate image
+                    annotator.box_label(xyxy, f'{names[int(cls)]} {conf:.2f}', color=colors(cls, True))
+                    
+                    # Perform OCR
+                    text = perform_ocr_on_image(im0, xyxy)
+                    results_data.append({
+                        'filename': p.name,
+                        'class': names[int(cls)],
+                        'confidence': conf.item(),
+                        'coordinates': xyxy,
+                        'extracted_text': text
+                    })
 
-                        annotator.box_label(xyxy, label, color=colors(c, True))
+                # Stream results
+                im0 = annotator.result()
+                if view_img:
+                    cv2.imshow(str(p), im0)
+                    cv2.waitKey(1)  # 1 millisecond delay
 
-                    # Save cropped prediction boxes
-                    if save_crop:
-                        save_one_box(xyxy, imc, file=save_path, BGR=True)
+            # Save results
+            if not nosave:
+                cv2.imwrite(save_path, im0)
 
-            # Print and save results
-            LOGGER.info(f'{s}{colorstr("Done. ")}, {os.times:.3f}s')
-            if save_img:
-                if dataset.mode == 'image':
-                    cv2.imwrite(save_path, im0)
-                else:  # Video
-                    if vid_path[i] != save_path:  # New video
-                        vid_path[i] = save_path
-                        if isinstance(vid_writer[i], cv2.VideoWriter):
-                            vid_writer[i].release()  # Release previous video writer
-                        if vid_cap:
-                            fps = vid_cap.get(cv2.CAP_PROP_FPS)
-                            w, h = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                            vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
-                    vid_writer[i].write(im0)
+    # Save results in JSON format if required
+    if save_json:
+        json_output_path = save_dir / 'results.json'
+        with open(json_output_path, 'w') as json_file:
+            json.dump(results_data, json_file, indent=4)
 
-    # Release video writers
-    for i in range(bs):
-        if isinstance(vid_writer[i], cv2.VideoWriter):
-            vid_writer[i].release()
+    # Print results
+    print(s)
 
-    # Print total processing time
-    t = Profile()
-    t.print()
+    # Return path for further processing or access
+    return str(save_dir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='yolo.pt', help='model.pt path')
-    parser.add_argument('--source', type=str, default='data/images', help='source')
-    parser.add_argument('--data', type=str, default='data/coco.yaml', help='data.yaml path')
-    parser.add_argument('--imgsz', type=int, default=640, help='inference size (pixels)')
+    parser.add_argument('--weights', type=str, default=ROOT / 'yolo.pt', help='model.pt path')
+    parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='source')
+    parser.add_argument('--data', type=str, default=ROOT / 'data/coco.yaml', help='data.yaml path')
+    parser.add_argument('--imgsz', type=int, nargs='+', default=[640, 640], help='image size')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='NMS IOU threshold')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
-    parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1 or cpu)')
+    parser.add_argument('--device', default='', help='device')
     parser.add_argument('--view-img', action='store_true', help='show results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
+    parser.add_argument('--save-json', action='store_true', help='save results to JSON')
     parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
     parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
     parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
@@ -220,16 +236,16 @@ if __name__ == "__main__":
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--visualize', action='store_true', help='visualize features')
     parser.add_argument('--update', action='store_true', help='update all models')
-    parser.add_argument('--project', default='runs/detect', help='save results to project/name')
+    parser.add_argument('--project', default=ROOT / 'runs/detect', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
-    parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
+    parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok')
     parser.add_argument('--line-thickness', type=int, default=3, help='bounding box thickness (pixels)')
     parser.add_argument('--hide-labels', action='store_true', help='hide labels')
     parser.add_argument('--hide-conf', action='store_true', help='hide confidences')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     parser.add_argument('--dnn', action='store_true', help='use OpenCV DNN for ONNX inference')
     parser.add_argument('--vid-stride', type=int, default=1, help='video frame-rate stride')
-    opt = parser.parse_args()
+    parser.add_argument('--languages', type=str, nargs='+', default=['en'], help='languages for OCR')
 
-    print_args(vars(opt))  # Print args
-    run(**vars(opt))  # Start inference
+    args = parser.parse_args()
+    run(**vars(args))
