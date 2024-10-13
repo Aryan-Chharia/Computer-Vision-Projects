@@ -67,7 +67,8 @@ while True:
             # If pinky is down, set the volume
             if not fingers[4]:  # If pinky is down
                 volume.SetMasterVolumeLevelScalar(volPer / 100, None)  # Set the master volume
-                cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)  # Draw a circle
+                if lineInfo:  # Check if lineInfo has values
+                    cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)  # Draw a circle
                 colorVol = (0, 255, 0)  # Change color to green
             else:
                 colorVol = (255, 0, 0)  # Reset color to red if pinky is up
