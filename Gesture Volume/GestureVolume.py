@@ -1,7 +1,7 @@
 import cv2
 import time
 import numpy as np
-import HandTrackingModule as htm  # Ensure this module is correctly implemented
+import HandTrackingModule as html  # Ensure this module is correctly implemented
 import math
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
