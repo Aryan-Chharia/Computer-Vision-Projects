@@ -2,70 +2,76 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load the image
-img = cv2.imread('C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\OIP.jpg')
-img = cv2.resize(img, (720, 640))
-frame = img.copy()
+# Function to load the age detection model
+def load_age_model(age_config_path, age_weights_path):
+    age_net = cv2.dnn.readNet(age_config_path, age_weights_path)
+    return age_net
 
-# ------------ Model for Age detection --------#
-age_weights = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_net.caffemodel"
-age_config = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_deploy.prototxt"
-age_Net = cv2.dnn.readNet(age_config, age_weights)
+# Function to detect faces in an image
+def detect_faces(image, face_cascade):
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray_image, scaleFactor=1.1, minNeighbors=5)
+    return faces
 
-# List of age ranges corresponding to the model's output
-ageList = ['(0-2)', '(4-6)', '(8-12)', '(15-20)',
-           '(25-32)', '(38-43)', '(48-53)', '(60-100)']
-model_mean = (78.4263377603, 87.7689143744, 114.895847746)
+# Function to predict age from a detected face
+def predict_age(face, age_net, model_mean):
+    blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), model_mean, swapRB=False)
+    age_net.setInput(blob)
+    age_preds = age_net.forward()
+    age_list = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', 
+                '(25-32)', '(38-43)', '(48-53)', '(60-100)']
+    age = age_list[age_preds[0].argmax()]
+    return age
 
-# Store the image dimensions
-fH = img.shape[0]
-fW = img.shape[1]
+# Main function for processing the image
+def process_image(image_path):
+    # Load the image
+    img = cv2.imread(image_path)
+    img = cv2.resize(img, (720, 640))
+    frame = img.copy()
 
-# Load the pre-trained Haar Cascade face detector
-# Option 1: Using OpenCV default haarcascade
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    # Load models
+    age_weights = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_net.caffemodel"
+    age_config = "C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\age_deploy.prototxt"
+    age_net = load_age_model(age_config, age_weights)
 
-# Convert image to grayscale for face detection
-img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Load Haar Cascade for face detection
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Detect faces using Haar Cascade
-faces = face_cascade.detectMultiScale(img_gray, scaleFactor=1.1, minNeighbors=5)
+    # Detect faces
+    faces = detect_faces(frame, face_cascade)
 
-# If no faces are detected
-if len(faces) == 0:
-    mssg = 'No face detected'
-    cv2.putText(img, f'{mssg}', (40, 40),
-                cv2.FONT_HERSHEY_SIMPLEX, 2, (200), 2)
-    cv2.imshow('Output', img)
-    cv2.waitKey(0)
+    if len(faces) == 0:
+        message = 'No face detected'
+        cv2.putText(img, message, (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+        cv2.imshow('Output', img)
+        cv2.waitKey(0)
+    else:
+        for (x, y, w, h) in faces:
+            box = [x, y, x + w, y + h]
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-else:
-    mssg = 'Face Detected'
-    # --------- Bounding Face ---------#
-    for (x, y, w, h) in faces:
-        box = [x, y, x + w, y + h]
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 200, 200), 2)
+            # Extract the face from the frame
+            face = frame[box[1]:box[3], box[0]:box[2]]
 
-        face = frame[box[1]:box[3], box[0]:box[2]]
+            # Predict age
+            age = predict_age(face, age_net, (78.4263377603, 87.7689143744, 114.895847746))
 
-        # ----- Image preprocessing --------#
-        blob = cv2.dnn.blobFromImage(
-            face, 1.0, (227, 227), model_mean, swapRB=False)
+            # Display the age on the frame
+            cv2.putText(frame, f'Age: {age}', (box[0], box[1] - 10), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
 
-        # -------Age Prediction---------#
-        age_Net.setInput(blob)
-        age_preds = age_Net.forward()
-        age = ageList[age_preds[0].argmax()]
+        # Show the processed frame
+        plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        plt.axis('off')
+        plt.show()
 
-        cv2.putText(frame, f'{mssg}: {age}', (box[0], box[1] - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2, cv2.LINE_AA)
+        cv2.imshow('Output', frame)
+        cv2.waitKey(0)
 
-    # Display the output using Matplotlib
-    plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
-    plt.show()
-
-    # Use OpenCV to display the result
-    cv2.imshow('Output', frame)
-    cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+# Execute the main function
+if __name__ == "__main__":
+    image_path = 'C:\\oops\\PyVerse\\Deep_Learning\\Object detection\\OIP.jpg'
+    process_image(image_path)
