@@ -1,6 +1,3 @@
-Here’s an updated version of the `README.md` file that includes a complete process guide and highlights the inclusion of a sample example to facilitate understanding. 
-
-```markdown
 # 🎥 Generate ML Model with Video
 
 This project demonstrates how to generate a Machine Learning model using video data. The implementation is designed to analyze video input, extract relevant features, and train a model for various applications, such as object detection, pose estimation, or action recognition.
