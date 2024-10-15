@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+
+    <title>PixCraft - get your desired one</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">PixCraft</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/help">Help</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/contact">Contact us</a>
+            </li>
+          </ul>
+          <form class="d-flex">
+            <div class="text-center">
+              <button class="btn btn-outline-success mx-1" type="button" onclick="window.location.href='/login';">
+                  Login
+              </button>
+          </div>
+          <div class="text-center">
+            <button class="btn btn-outline-success mx-1" type="button" onclick="window.location.href='/signup';">
+                signup
+            </button>
+        </div>
+                  
+          </form>
+        </div>
+      </div>
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <strong>Success!</strong> {{ message | safe}}
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+    {% endfor %} {% endif %} {% endwith %}
+
+    <div class="container fs-5 my-5">
+      <h3>
+        PixCraft
+        <small class="text-muted">Get your desired form of image</small>
+      </h3>
+      <label for="inputGroupFile02" class="form-label">Select your image</label>
+      <form action="/edit" method="POST" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+          <input
+            type="file"
+            name="file"
+            class="form-control"
+            id="inputGroupFile02"
+          />
+        </div>
+        <div class="mb-3">
+          <div class="form-floating">
+            <select
+              name="operation"
+              class="form-select"
+              id="floatingSelect"
+              aria-label="Floating label select example"
+            >
+              <option selected>Choose an Operation</option>
+              <option value="cpng">Convert to PNG</option>
+              <option value="cgray">Convert to Grayscale</option>
+              <option value="cwebp">Convert to Webp</option>
+              <option value="cjpg">Convert to Jpg</option>
+            </select>
+            <label for="floatingSelect">Select an Editing Operation</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Convert</button>
+      </form>
+    </div>
+    
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

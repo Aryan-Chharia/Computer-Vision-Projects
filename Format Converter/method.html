@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixcraft - Methodology</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Pixcraft: Format Converter</h1>
+    </header>
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Pixcraft allows users to convert images from one format to another, such as JPG to PNG. This is achieved using a combination of Flask for server-side processing and OpenCV for image manipulation.</p>
+        </section>
+
+        <section id="methodology">
+            <h2>Methodology</h2>
+
+            <h3>1. Frontend (HTML, CSS, JS)</h3>
+            <ul>
+                <li><strong>HTML/CSS</strong>: The frontend uses HTML to create the structure of the web application and CSS to provide styling.</li>
+                <li><strong>JavaScript</strong>: JavaScript handles client-side interactivity, including form submission and updating the UI.</li>
+            </ul>
+
+            <h3>2. Backend (Flask)</h3>
+            <ul>
+                <li><strong>File Upload</strong>: When a user uploads an image, Flask handles the file and saves it to the server temporarily.</li>
+                <li><strong>OpenCV</strong>: Flask uses OpenCV to read the uploaded image and convert it into the desired format.</li>
+                <li><strong>Conversion Process</strong>:
+                    <ol>
+                        <li>The user uploads an image, and the server receives it.</li>
+                        <li>OpenCV reads the image in the original format.</li>
+                        <li>The server converts the image to the specified format using OpenCV.</li>
+                        <li>The converted image is saved and provided as a downloadable link.</li>
+                    </ol>
+                </li>
+            </ul>
+
+            <h3>3. Image Conversion Code</h3>
+            <pre><code class="language-python">
+import cv2
+from flask import Flask, request, send_file
+import os
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def convert_image():
+    if request.method == 'POST':
+        file = request.files['image']
+        output_format = request.form['format']
+        input_path = os.path.join('uploads', file.filename)
+        output_path = os.path.join('outputs', f'converted_image.{output_format}')
+
+        # Save the uploaded file
+        file.save(input_path)
+
+        # Read and convert the image
+        image = cv2.imread(input_path)
+        cv2.imwrite(output_path, image)
+
+        # Send the converted image for download
+        return send_file(output_path, as_attachment=True)
+
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+            </code></pre>
+        </section>
+
+        <section id="summary">
+            <h2>Summary</h2>
+            <p>Pixcraft uses a combination of frontend technologies for user interaction and Flask with OpenCV for backend image processing. It effectively converts images between formats, allowing for easy downloads of the converted files.</p>
+        </section>
+    </main>
+</body>
+</html>

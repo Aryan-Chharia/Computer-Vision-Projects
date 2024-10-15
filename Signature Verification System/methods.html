@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methods - Signature Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>Signature Verification System</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('methods') }}">Methods</a></li>
+                <li><a href="{{ url_for('compare') }}">Compare</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Methods Used in Signature Verification</h2>
+            <p>This Signature Verification System uses several steps to analyze and compare the signatures. Below are the main steps involved:</p>
+            
+            <h3>1. Preprocessing the Signatures</h3>
+            <p>The first step is to preprocess the uploaded images. The following preprocessing techniques are applied:</p>
+            <ul>
+                <li><b>Grayscale Conversion:</b> The color images are converted into grayscale to reduce complexity.</li>
+                <li><b>Thresholding:</b> Thresholding is applied to the image to create a binary image that distinguishes the signature from the background.</li>
+                <li><b>Contour Detection:</b> Contours are detected in both the uploaded signatures using OpenCV to extract the structure of the signatures.</li>
+            </ul>
+
+            <h3>2. Comparing Signatures</h3>
+            <p>The core method of comparison involves calculating a similarity score between the two signatures:</p>
+            <ul>
+                <li><b>Histogram Comparison:</b> We use OpenCV’s <code>cv2.compareHist()</code> function to compare the histograms of the two signatures. This gives a score indicating the degree of similarity between the two images.</li>
+                <li><b>Correlation Method:</b> The correlation method is used to compute the similarity between the two histograms. A higher correlation score means the signatures are more similar.</li>
+            </ul>
+
+            <h3>3. Decision Making</h3>
+            <p>Once the similarity score is calculated, a threshold is applied to determine if the signatures match:</p>
+            <ul>
+                <li>If the similarity score is above the predefined threshold, the signatures are considered to be from the same person.</li>
+                <li>If the score is below the threshold, the signatures are likely different.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Technologies Used</h2>
+            <ul>
+                <li><b>Flask:</b> Flask is used to handle the backend logic and serve the web application.</li>
+                <li><b>OpenCV:</b> OpenCV is used for image processing and signature comparison.</li>
+                <li><b>Jinja2:</b> Flask’s templating engine Jinja2 is used to render dynamic HTML pages.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Signature Verification System. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

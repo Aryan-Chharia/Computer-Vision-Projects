@@ -1,0 +1,7 @@
+tensorflow==2.15.0
+tensorflow-hub==0.16.1
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.7.1
+scikit-learn==1.5.2
+opencv-python==4.10.0.84

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Method Explanation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Method Explanation</h1>
+    <h2>Overview</h2>
+    <p>This project uses OpenCV and Pyzbar to detect and decode both QR codes and barcodes from images or video streams.</p>
+    
+    <h2>Technologies Used</h2>
+    <ul>
+        <li><strong>Python:</strong> The core programming language for implementing the scanner functionality.</li>
+        <li><strong>OpenCV:</strong> Used for image capture and preprocessing.</li>
+        <li><strong>Pyzbar:</strong> Library used to decode the QR codes and barcodes.</li>
+    </ul>
+
+    <h2>Detection Technique</h2>
+    <p>The code uses OpenCV to capture video from a webcam, and each frame is processed to detect QR codes and barcodes. 
+       The Pyzbar library is used to decode the detected codes, and the decoded information is overlaid on the video using OpenCV.</p>
+
+    <h2>Advantages</h2>
+    <p>Using OpenCV allows for real-time detection due to its efficient image processing capabilities, while Pyzbar 
+       ensures reliable decoding of different barcode formats and QR codes.</p>
+
+    <h2>Code Snippet</h2>
+    <pre><code>
+for barcode in decode(img):
+    myData = barcode.data.decode('utf-8')
+    pts = np.array([barcode.polygon], np.int32)
+    pts = pts.reshape((-1, 1, 2))
+    cv2.polylines(img, [pts], True, (255, 0, 255), 5)
+    cv2.putText(img, myData, (barcode.rect[0], barcode.rect[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 255), 2)
+    </code></pre>
+</body>
+</html>
