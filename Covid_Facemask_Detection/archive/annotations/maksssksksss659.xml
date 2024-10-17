@@ -1,0 +1,24 @@
+
+<annotation>
+    <folder>images</folder>
+    <filename>maksssksksss659.png</filename>
+    <size>
+        <width>441</width>
+        <height>575</height>
+        <depth>3</depth>
+    </size>
+    <segmented>0</segmented>
+    <object>
+        <name>mask_weared_incorrect</name>
+        <pose>Unspecified</pose>
+        <truncated>0</truncated>
+        <occluded>0</occluded>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>113</xmin>
+            <ymin>97</ymin>
+            <xmax>252</xmax>
+            <ymax>251</ymax>
+        </bndbox>
+    </object>
+</annotation>
