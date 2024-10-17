@@ -1,0 +1,24 @@
+
+<annotation>
+    <folder>images</folder>
+    <filename>maksssksksss819.png</filename>
+    <size>
+        <width>400</width>
+        <height>225</height>
+        <depth>3</depth>
+    </size>
+    <segmented>0</segmented>
+    <object>
+        <name>with_mask</name>
+        <pose>Unspecified</pose>
+        <truncated>0</truncated>
+        <occluded>0</occluded>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>68</xmin>
+            <ymin>63</ymin>
+            <xmax>129</xmax>
+            <ymax>128</ymax>
+        </bndbox>
+    </object>
+</annotation>

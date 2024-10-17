@@ -1,0 +1,37 @@
+
+<annotation>
+    <folder>images</folder>
+    <filename>maksssksksss276.png</filename>
+    <size>
+        <width>323</width>
+        <height>400</height>
+        <depth>3</depth>
+    </size>
+    <segmented>0</segmented>
+    <object>
+        <name>mask_weared_incorrect</name>
+        <pose>Unspecified</pose>
+        <truncated>0</truncated>
+        <occluded>0</occluded>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>122</xmin>
+            <ymin>38</ymin>
+            <xmax>222</xmax>
+            <ymax>160</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>without_mask</name>
+        <pose>Unspecified</pose>
+        <truncated>0</truncated>
+        <occluded>0</occluded>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>274</xmin>
+            <ymin>112</ymin>
+            <xmax>310</xmax>
+            <ymax>153</ymax>
+        </bndbox>
+    </object>
+</annotation>

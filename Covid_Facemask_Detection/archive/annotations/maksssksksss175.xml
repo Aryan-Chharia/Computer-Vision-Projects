@@ -1,0 +1,37 @@
+
+<annotation>
+    <folder>images</folder>
+    <filename>maksssksksss175.png</filename>
+    <size>
+        <width>400</width>
+        <height>226</height>
+        <depth>3</depth>
+    </size>
+    <segmented>0</segmented>
+    <object>
+        <name>with_mask</name>
+        <pose>Unspecified</pose>
+        <truncated>0</truncated>
+        <occluded>0</occluded>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>113</xmin>
+            <ymin>61</ymin>
+            <xmax>174</xmax>
+            <ymax>122</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>with_mask</name>
+        <pose>Unspecified</pose>
+        <truncated>0</truncated>
+        <occluded>0</occluded>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>195</xmin>
+            <ymin>50</ymin>
+            <xmax>228</xmax>
+            <ymax>112</ymax>
+        </bndbox>
+    </object>
+</annotation>
