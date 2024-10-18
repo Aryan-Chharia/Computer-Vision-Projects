@@ -1,0 +1,3 @@
+diffusers==0.17.0  # Make sure to use the correct version
+torch              # Add the specific version if needed, for example: torch==2.0.1
+transformers       # If required by diffusers for the pretrained models
