@@ -1,0 +1,6 @@
+imutils==0.5.4
+numpy==2.1.2
+opencv_contrib_python==4.9.0.80
+opencv_python==4.10.0.84
+tensorflow==2.17.0
+tensorflow_intel==2.17.0
