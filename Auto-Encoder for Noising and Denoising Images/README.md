@@ -1,8 +1,8 @@
-Description:
+# Description:
 
 DenoiseNet is a powerful image processing project that utilizes a convolutional autoencoder to effectively remove noise from images, enhancing their quality and visual appeal. This project focuses on training a deep learning model to reconstruct clean images from their noisy counterparts, demonstrating the practical applications of neural networks in computer vision.
 
-Key Components:
+# Key Components:
 Dataset Utilization:
 
 The project uses the CIFAR-10 dataset, which consists of 60,000 32x32 color images in 10 different classes. This dataset is ideal for image denoising tasks due to its diverse range of images.
@@ -21,7 +21,8 @@ The model undergoes 50 epochs of training, allowing it to learn the intricacies 
 Results Visualization:
 
 The project visualizes the results by displaying the original noisy images, the denoised images produced by the autoencoder, and the corresponding clean images. This comparison showcases the effectiveness of the autoencoder in noise reduction.
-Applications:
+
+# Applications:
 
 DenoiseNet has significant applications in fields like photography, video processing, medical imaging, and any area where image quality is paramount. It can be used to enhance images captured in low-light conditions or those affected by various types of noise. Please note During preprocessing, CIFAR-10 images are often normalized, augmented, or scaled in such a way that fine details are lost. For instance:
 Normalization: Normalizing the pixel values to a range (e.g., between 0 and 1) may make images appear a bit less sharp when visualized.
