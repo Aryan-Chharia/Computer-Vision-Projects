@@ -1,0 +1,25 @@
+item {
+  id: 1
+  name: 'Cherry_Healthy'
+}
+
+item {
+  id: 2
+  name: 'Cherry_Powdery_mildew'
+}
+item {
+  id: 3
+  name: 'Grape___healthy'
+}
+item {
+  id: 4
+  name: 'Grape___Esca_(Black_Measles)'
+}
+item {
+  id: 5
+  name: 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)'
+}
+item {
+  id: 6
+  name: 'Grape_Black_rot'
+}
