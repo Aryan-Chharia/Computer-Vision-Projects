@@ -1,0 +1,10 @@
+opencv-contrib-python-headless
+tensorflow-cpu
+streamlit
+numpy
+pandas
+pillow
+keras
+pathlib
+matplotlib
+python-resize-image
