@@ -1,6 +1,6 @@
 # Image Segment in Real Time
 
-This project demonstrates **real-time image segmentation** using advanced deep learning models. The project allows users to segment objects in static images. The segmentation model dynamically identifies and highlights various objects in the frame.
+This project demonstrates **real-time image segmentation** using advanced deep learning models. The project allows users to segment objects in  real-time video streams from a webcam or from static images. The segmentation model dynamically identifies and highlights various objects in the frame.
 
 ---
 
@@ -43,6 +43,9 @@ The project pipeline is built on the following steps:
 5. **Real-Time Display**:
    - The segmented frames are displayed live, with each object in the frame highlighted by its segmentation mask.
 
+## Performance:
+- The system achieves real-time segmentation speeds of approximately 2 frames per second (FPS) on a standard CPU setup.
+- The FastSam segmentation is `50x` faster than other available models.
 ---
 
 ## Results
