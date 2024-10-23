@@ -1,0 +1,12 @@
+libraries used : python 3
+		 tkinter
+		 messagebox
+		 PIL
+		 cv2
+		 argparse
+	       	 matplotlib.pyplot
+	 	 numpy
+		 time
+		 os
+		 tensorflow
+		 fpdf
