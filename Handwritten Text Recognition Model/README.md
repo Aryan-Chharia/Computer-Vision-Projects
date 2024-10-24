@@ -11,10 +11,10 @@ The app provides two main functionalities
 
 ## Screenshots
 
-![App Screenshot](RESULTS/OP5.png)
-![App Screenshot](RESULTS/OP7.png)
-![App Screenshot](RESULTS/OP2.png)
-![App Screenshot](RESULTS/OP1.png)
+![App Screenshot](results/OP5.png)
+![App Screenshot](results/OP7.png)
+![App Screenshot](results/OP2.png)
+![App Screenshot](results/OP1.png)
 
 
 
