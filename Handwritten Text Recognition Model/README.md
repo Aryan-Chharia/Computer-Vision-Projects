@@ -14,7 +14,7 @@ The app provides two main functionalities
 ![App Screenshot](results/OP5.png)
 ![App Screenshot](results/OP7.png)
 ![App Screenshot](results/OP2.png)
-![App Screenshot](results/OP1.png)
+
 
 
 
