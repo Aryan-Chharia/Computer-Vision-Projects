@@ -1,3 +1,40 @@
+# Self-Driving Car Simulation
+
+## Overview
+This project simulates a self-driving car using computer vision and basic AI algorithms. OpenCV processes visual data, enabling the car to navigate autonomously within a controlled environment.
+
+## Features
+- **Object Detection**: Identifies obstacles and lanes to maintain a safe path.
+- **Lane Following**: Uses vision algorithms to detect and follow lanes.
+- **Collision Avoidance**: Integrates algorithms to prevent collisions.
+- **Real-Time Processing**: Analyzes video frames in real-time for navigation.
+
+## Requirements
+- opencv-python
+- numpy
+
+## Installation
+Install the required libraries with:
+```bash
+pip install opencv-python numpy
+
+## Getting Started
+
+git clone <repository-url>
+
+```
+## Application
+
+Start the simulation to observe the car’s autonomous driving behavior.
+
+Adjust parameters to test the simulation in various environments.
+
+
+
+
+
+
+
 
 <img src="https://github.com/rchavezj/OpenCV_Projects/blob/master/images/findingLanes.gif" width="900" height="500" />
 
