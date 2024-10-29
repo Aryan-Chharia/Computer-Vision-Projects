@@ -1,0 +1,65 @@
+name: Enhancement Request 🧑‍💻
+description: Submit your enhancement requests for review.
+title: '🧑‍💻: '
+labels: ["Up-for-Grabs ✋", "enhancement 🧑‍💻"]
+assignees:
+  - ''
+
+body:
+  - type: textarea
+    id: enhancement-title
+    attributes:
+      label: Title
+      placeholder: Enter the title of your enhancement request here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: enhancement-aim
+    attributes:
+      label: Enhancement Aim
+      placeholder: Describe the aim of the enhancement.
+    validations:
+      required: true
+
+  - type: textarea
+    id: changes
+    attributes:
+      label: Changes
+      placeholder: Enlist those changes you want to make.
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots 📷
+      placeholder: Write N/A if not available.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: guidelines
+    attributes:
+      label: Guidelines
+      options:
+        - label: "I have read the guidelines"
+          required: true
+        - label: "I have the link to my latest merged PR"
+          required: false
+
+  - type: textarea
+    id: full-name
+    attributes:
+      label: Full Name
+      placeholder: Enter your full name here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: participant-role
+    attributes:
+      label: Participant Role
+      placeholder: Enter your participant role here (e.g., GSSOC, Hacktoberfest).
+    validations:
+      required: true
