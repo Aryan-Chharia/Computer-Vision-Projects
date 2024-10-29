@@ -1,0 +1,65 @@
+name: "🐞 Bug Report"
+description: Report a bug or propose to fix a bug
+title: "BUG: "
+labels: ["bug", "Needs Triage"]
+body:
+  - type: checkboxes
+    attributes:
+      label: "Is there an existing issue raised for this?"
+      description: "Before reporting, kindly ensure that you dont duplicate an already existing issue."
+      options:
+        - label: "I have searched the existing issues"
+          required: true
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the sections below so that the bug can be fixed. Try to be as detailed as possible.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe your issue
+      placeholder: Eg - When I click here this happens..
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to page X
+        2. Click here
+        3. Click there
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What was the expected result?
+      description: Describe the expected functionality
+      placeholder: Eg - It was expected to log out, but it doesnt
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed solution
+      description: You approach or an abstract idea to tackle this issue.
+      placeholder: Eg - This can be implemented using..
+    validations:
+      required: true
+  - type: dropdown
+    id: assign
+    attributes:
+      label: "Would you like to work on this issue?"
+      options:
+        - "Yes"
+  - type: checkboxes
+    attributes:
+      label: "Terms & Conditions"
+      options:
+        - label: "I agree to follow the Code of Conduct"
+          required: true
+        - label: "I'm a GSSOC'24 Ext contributor"
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this issue! We will get back to you as soon as possible.
