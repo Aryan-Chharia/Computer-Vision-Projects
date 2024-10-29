@@ -56,3 +56,5 @@ Export Video: Fancy a 3D video? Set export_video=True, and you'll receive a beau
 License
 The majority of VFusion3D is licensed under CC-BY-NC, however portions of the project are available under separate license terms: OpenLRM as a whole is licensed under the Apache License, Version 2.0, while certain components are covered by NVIDIA's proprietary license.
 The model weights of VFusion3D is also licensed under CC-BY-NC.
+
+![input_image](input_image.png)
