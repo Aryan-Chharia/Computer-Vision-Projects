@@ -2,7 +2,7 @@ import subprocess
 
 def initialize_dvc():
     # Use the full path to the DVC executable
-    dvc_executable = r'C:\Users\Darshan GK\AppData\Roaming\Python\Python311\Scripts\dvc.exe'
+    dvc_executable = r'C:\Users\username\AppData\Roaming\Python\Python311\Scripts\dvc.exe'
     
     # Run the DVC init command
     process = subprocess.run(
