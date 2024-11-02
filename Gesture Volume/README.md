@@ -30,14 +30,16 @@ This project provides a hand-tracking application that allows users to control s
 ## Installation
 
 1. Clone this repository:
+      git clone https://github.com/Aryan-Chharia/Computer-Vision-Projects
+      cd /Computer-Vision-Projects/Gesture Volume
    
 
-2. Install the required packages:
+3. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. #### For Linux users, ensure that `amixer` is installed for volume control. Use the package manager to install it if necessary.
+4. #### For Linux users, ensure that `amixer` is installed for volume control. Use the package manager to install it if necessary.
 
 ## Usage
 
@@ -82,3 +84,18 @@ Contributions are welcome! If you would like to add features or fix bugs, feel f
 - [OpenCV](https://opencv.org/) for computer vision capabilities.
 - [MediaPipe](https://google.github.io/mediapipe/) for hand tracking.
 - [Tkinter](https://docs.python.org/3/library/tkinter.html) for GUI development.
+
+
+---
+## Developed By
+
+This application was developed by [Dawood](htttps://github.com/Dwukn). 
+
+## Contact
+
+For any inquiries, suggestions, or issues, please contact us via:
+
+- Email: dawood220a@gmail.com
+- Linkden: [Dawood](https://www.linkedin.com/in/dwukn/)
+
+Thank you for using our application!
