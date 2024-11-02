@@ -54,7 +54,7 @@ Most models perform object detection in two parts- they make predictions about t
 **How it Works**:
    - Image Division: The image is divided into an N x N grid, with each grid cell responsible for detecting objects within it.
 
-   ![YOLO Architecture](Images_Read_Me\YOLO.png)
+   ![YOLO Architecture](Images_Read_Me/YOLO.png)
 
    - Bounding Boxes and Class Scores: For each grid cell, YOLO predicts bounding boxes (coordinates, height, and width) and confidence scores. The confidence score indicates how likely an object is present.
    - Class Prediction: Each bounding box is assigned a probability for each class (like person, smoke, ball), indicating what type of object it likely contains.
@@ -71,7 +71,7 @@ While the speed of YOLO is ideal, its limitations at present are its rigid grid 
 
 This model, like YOLO, combines object detection and classification in a single step. The key difference is that it uses multiple layers to scan the image at different scales. The process consists of two parts- extraction of feature maps and applying convolution filters for object detection. Here is what the architecture looks like:
 
-![Single Shot Multibox Detector](Images_Read_Me\SSD_model.jpeg)
+![Single Shot Multibox Detector](Images_Read_Me/SSD_model.jpeg)
 
 **Why use SSD?**: As compared to YOLO, the SSD model is better at detecting smaller or larger objects present in images accurately, even in complex scenarios. One should use this model if they want the perfect tradeoff between model accuracy and speed.
 
