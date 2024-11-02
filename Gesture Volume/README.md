@@ -1,112 +1,102 @@
-# Gesture-Based Volume Control
+# Gesture Volume Control
 
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-informational)
 [![Python](https://img.shields.io/badge/Python-%203.8%20%7C%203.9%20%7C%203.10-informational)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-Apache-green)](./LICENSE)
-[![Code style: Black](https://img.shields.io/badge/Code%20style-Black-000.svg)](https://github.com/psf/black)
-
 
 Control your system volume with hand gestures using computer vision and hand tracking technologies.
 
 ## Overview
 
-![Volume-control-using hand gesture](docs/Untitledvideo-MadewithClipchamp2-ezgif.com-video-to-gif-converter.gif)
+This project provides a hand-tracking application that allows users to control system volume through hand gestures. It utilizes OpenCV and MediaPipe for hand detection and tracking, and includes a Tkinter GUI for interaction. The application works on Windows, macOS, and Linux.
 
-This project enables users to control system volume using intuitive hand gestures. By leveraging computer vision and hand tracking, we've created a touchless interface that adjusts volume based on the distance between your thumb and index finger. This solution enhances accessibility and provides an innovative approach to user interaction.
+## Features
 
-## Tech Stack
+- **Hand Tracking:** Uses MediaPipe to detect hand movements in real-time.
+- **Volume Control:** Adjusts system volume based on hand gestures, specifically the distance between the thumb and index finger.
+- **User Interface:** A Tkinter GUI that displays the current volume and allows users to start/stop tracking.
+- **Settings:** Options for camera selection and gesture sensitivity adjustments.
+- **Logging:** Logs application activities and errors for debugging purposes.
 
-- **Python 3**
-- **OpenCV**: For capturing video frames and image processing
-- **Mediapipe**: For real-time hand detection and tracking
-- **PyCaw**: For interacting with system audio settings
-- **NumPy**: For numerical operations and interpolation
-- **Custom HandTrackingModule**: A purpose-built module for advanced hand tracking features
+## Requirements
 
-## Key Features
+- Python 3.x
+- OpenCV
+- MediaPipe
+- PyAutoGUI
+- NumPy
+- Tkinter
 
-- 🎮 **Gesture-Based Volume Control**: Adjust system volume by changing the distance between thumb and index finger
-- 🔍 **Real-time Hand Detection**: Instant hand gesture recognition using Mediapipe
-- 📊 **Smooth Transition**: Optimized gesture recognition for fluid volume adjustments
-- 🛠️ **Custom HandTrackingModule**: Enhanced capabilities for finger tracking and gesture recognition
+## Installation
 
-## Getting Started
-
-### Prerequisites
-
-- Computer with a webcam
-- Python 3.x installed
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/gesture-volume-control.git
+1. Clone this repository:
+   ``` bash
+      git clone https://github.com/Aryan-Chharia/Computer-Vision-Projects
+      cd /Computer-Vision-Projects/Gesture Volume
    ```
 
-2. Navigate to the project directory:
-   ```bash
-   cd gesture-volume-control
-   ```
-
-3. Install required dependencies:
+3. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-### Running the Tool
+4. #### For Linux users, ensure that `amixer` is installed for volume control. Use the package manager to install it if necessary.
 
-1. Start the application:
+## Usage
+
+1. Run the application:
    ```bash
-   python VolumeControl.py
+   python Gesture-Volume.py
    ```
 
-2. Use hand gestures to control volume:
-   - Bring thumb and index finger closer for lower volume
-   - Move them apart for higher volume
+2. In the GUI:
+   - Select your camera if you have multiple devices.
+   - Adjust the sensitivity slider to modify how responsive the volume control is to hand movements.
+   - Click "Start Tracking" to begin hand gesture recognition.
+   - Use the thumb and index finger to adjust the volume:
+     - Move them apart to increase volume.
+     - Bring them closer together to decrease volume.
 
-3. Press 'Esc' to exit the application
+3. Click "Stop Tracking" to halt the tracking process.
+4. Show your Palm to select volume
 
-## How it Works
+## Code Structure
 
-1. The webcam detects your hand in real-time
-2. Position your hand in front of the camera
-3. Adjust volume by changing thumb-index finger distance:
-   - Closer = Lower volume
-   - Wider = Higher volume
-4. On-screen display shows current volume percentage
+### HandTrackingModule.py
 
-## Custom HandTrackingModule
+- **HandDetector:** Class responsible for detecting and tracking hands using MediaPipe.
+- **Application:** Tkinter GUI application that initiates hand tracking and updates the cursor position based on hand movements.
 
-Our custom-built module enhances Mediapipe functionality with:
-- Precise hand landmark detection
-- Real-time distance calculation between fingers
-- Specialized gesture recognition for volume control
+### GesVol.py
 
-## Applications
+- **VolumeController:** Class that interacts with the system to adjust the volume using platform-specific commands.
+- **VolumeControlApp:** Main application class that manages the GUI and integrates the hand tracking functionality.
 
-- **Accessibility**: Touchless control for users with mobility challenges
-- **Hands-Free Environments**: Ideal for presentations or cooking scenarios
-- **Innovation**: Stepping stone for future gesture-based interfaces
+## Logging
 
-## Documentation
+The application logs information and errors to `volume_control.log`. This can be useful for debugging and understanding application performance.
 
-For detailed instructions and API documentation, visit our [Documentation](https://github.com/mjgandhi2305/Gesture-Volume-Control/blob/master/docs/docs.md).
+## Contributing
 
-## License
+Contributions are welcome! If you would like to add features or fix bugs, feel free to submit a pull request.
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+## Acknowledgments
+
+- [OpenCV](https://opencv.org/) for computer vision capabilities.
+- [MediaPipe](https://google.github.io/mediapipe/) for hand tracking.
+- [Tkinter](https://docs.python.org/3/library/tkinter.html) for GUI development.
+
+
+---
+## Developed By
+
+This application was developed by [Dawood](htttps://github.com/Dwukn). 
 
 ## Contact
 
-For questions or feedback:
-- 📧 Email: mjgandhi2305@gmail.com
-- 🐙 GitHub: [@mjgandhi2305](https://github.com/mjgandhi2305)
+For any inquiries, suggestions, or issues, please contact us via:
 
----
+- Email: dawood220a@gmail.com
+- Linkden: [Dawood](https://www.linkedin.com/in/dwukn/)
 
-<div align="center">
-
-**Made with ❤️ by Miten Gandhi**
-
-</div>
+Thank you for using our application!
