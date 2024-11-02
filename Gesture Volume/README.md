@@ -46,7 +46,7 @@ This project provides a hand-tracking application that allows users to control s
 
 1. Run the application:
    ```bash
-   python GesVol.py
+   python Gesture-Volume.py
    ```
 
 2. In the GUI:
