@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<style>
+    /* CSS */
+    .button-37 {
+        background-color: #13aa52;
+        border: 1px solid #13aa52;
+        border-radius: 4px;
+        box-shadow: rgba(0, 0, 0, .1) 0 2px 4px 0;
+        box-sizing: border-box;
+        color: #fff;
+        cursor: pointer;
+        font-family: "Akzidenz Grotesk BQ Medium", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        outline: none;
+        padding: 10px 25px;
+        text-align: center;
+        transition: transform 150ms, box-shadow 150ms;
+        user-select: none;
+    }
+
+    .button-37:hover {
+        box-shadow: rgba(0, 0, 0, .15) 0 3px 9px 0;
+        transform: translateY(-2px);
+    }
+
+    .button-38 {
+        background-color: #e01d1d;
+        border: 1px solid #e01d1d;
+        border-radius: 4px;
+        box-shadow: rgba(0, 0, 0, .1) 0 2px 4px 0;
+        box-sizing: border-box;
+        color: #fff;
+        cursor: pointer;
+        font-family: "Akzidenz Grotesk BQ Medium", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        outline: none;
+        padding: 10px 25px;
+        text-align: center;
+        transition: transform 150ms, box-shadow 150ms;
+        user-select: none;
+    }
+
+    .button-38:hover {
+        box-shadow: rgba(0, 0, 0, .15) 0 3px 9px 0;
+        transform: translateY(-2px);
+    }
+
+    @media (min-width: 768px) {
+        .button-37 {
+            padding: 10px 30px;
+        }
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    img {
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 2px solid #000; /* Add a thick border */
+    }
+
+    .button-container {
+        display: flex;
+        gap: 10px;
+    }
+
+    img::before {
+content: attr(alt);
+color: white;
+font-size: 20px; /* Adjust as needed */
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+text-align: center;
+display: block;
+}
+
+
+
+</style>
+
+   <!--   <a href="/logout" class="btn btn-dark">Logout</a>-->
+
+   <body>
+    <div id="sidebar" class="side-bar">
+        <div id="close-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        <nav class="navbar">
+            
+            <a href="/dashboard"><i class="fas fa-home"></i> Home</a>
+            <a href="/recognize"><i class="fas fa-eye"></i> Recognize</a>
+            <a href="/faces"><i class="fas fa-edit"></i> Modify</a>
+            <a href="/analyze"><i class="fas fa-list"></i> Dashboard</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+    
+    <main role="main" class="main-content">
+        <div class="container">
+            <img id="video" src="" width="640" height="480" alt="Click the button to recognize">
+            <div class="button-container">
+                <button class="button-37" type="button" onclick="startVideo()">Recognize</button>
+                <button class="button-38" type="button" onclick="stopVideo()">Stop</button>
+            </div>
+        </div>
+    
+        <script>
+            function startVideo() {
+                document.getElementById('video').src = "{{ url_for('video_feed') }}";
+                alert('Your webcam is turning on');
+            }
+    
+            function stopVideo() {
+                document.getElementById('video').src = "";
+                alert('Your webcam is turning off');
+            }
+        </script>
+
+
+
+
+
+        
+
+
+
+
+
+
+        
+
+        
+        
+
+
+
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/js/all.min.js"></script>
+</body>
+</html>
+

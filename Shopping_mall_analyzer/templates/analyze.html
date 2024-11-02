@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+    <style>
+         .circular-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 40px;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 18px;
+            color: #333333;
+            margin-right: 10px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        select {
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            width: 100%;
+            max-width: 300px;
+        }
+        #chart-container {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar" class="side-bar">
+        <div id="close-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        <nav class="navbar">
+            <a href="/dashboard"><i class="fas fa-home"></i> Home</a>
+            <a href="/recognize"><i class="fas fa-eye"></i> Recognize</a>
+            <a href="/faces"><i class="fas fa-edit"></i> Modify</a>
+            <a href="/analyze"><i class="fas fa-list"></i> Dashboard</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <main role="main" class="main-content">
+        <div class="container mt-4">
+            <h1>Analyze Faces</h1>
+            <form method="get" action="{{ url_for('index') }}" class="mb-3">
+                <label for="sortOrder">Sort Order:</label>
+                <select name="sort_order" id="sortOrder" onchange="this.form.submit()">
+                    <option value="latest" {% if sort_order == 'latest' %}selected{% endif %}>Latest</option>
+                    <option value="all" {% if sort_order == 'all' %}selected{% endif %}>All</option>
+                </select>
+            </form>
+            <table class="table table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th>Face</th>
+                        <th>Name</th>
+                        <th>Analyze</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for face in faces %}
+                    <tr>
+                        <td><img src="{{ url_for('serve_image', face_id=face[0]) }}" class="circular-image" alt="Face Image" onclick="showModal(`{{ url_for('serve_image', face_id=face[0]) }}` , '{{ face[1] }}')"></td>
+                        <td>{{ face[1] }}</td>
+                        <td><a href="{{ url_for('analyze_face', face_id=face[0]) }}" class="btn btn-primary">Analyze</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    
+       
+        <div class="modal fade" id="faceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="faceName"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="faceImage" src="" class="img-fluid" alt="Face Image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+            function showModal(imageSrc, faceName) {
+                document.getElementById('faceImage').src = imageSrc;
+                document.getElementById('faceName').textContent = faceName;
+                $('#faceModal').modal('show');
+            }
+        </script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    
+    </main>
+        
+</body>
+</html>

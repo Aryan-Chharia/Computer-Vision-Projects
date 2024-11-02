@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Face</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px; /* Increased space below the heading */
+        }
+
+        .container {
+            display: flex;
+            align-items: flex-start; /* Align items to the top */
+            justify-content: center; /* Center items horizontally */
+            gap: 30px; /* Space between the image and the form */
+            margin-top: 20px;
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+        }
+
+        .face {
+            width: 350px; /* Fixed width */
+            height: 350px; /* Fixed height */
+            border-radius: 8px; /* Rounded corners for the image */
+            object-fit: cover; /* Ensure the image covers the fixed size */
+            border: 2px solid #ddd; /* Border around the image */
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column; /* Stack form elements vertically */
+            width: 100%; /* Full width of the form container */
+            max-width: 600px; /* Max width for the form */
+        }
+
+        label {
+            font-weight: bold; /* Make label text bold */
+            font-size: 1.1rem; /* Increase font size of labels */
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column; /* Stack image and form vertically on smaller screens */
+                align-items: center;
+            }
+
+            .face {
+                width: 100%; /* Full width of the container on small screens */
+                height: auto; /* Maintain aspect ratio */
+            }
+
+            .form-container {
+                width: 100%; /* Full width of the container on small screens */
+            }
+        }
+        
+
+        
+        
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Modify Face Data</h1>
+    
+        <div class="container">
+            <img src="{{ url_for('serve_image', face_id=face[0]) }}" class="face" alt="Face Image">
+    
+            <div class="form-container">
+                <form action="{{ url_for('update_face', face_id=face[0]) }}" method="post">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ face[1] }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone1">Phone Number 1</label>
+                        <input type="text" class="form-control" id="phone1" name="phone1" value="{{ face[2] }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone2">Phone Number 2 (Optional)</label>
+                        <input type="text" class="form-control" id="phone2" name="phone2" value="{{ face[3] }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ face[4] }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ face[5] }}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="state">State</label>
+                            <input type="text" class="form-control" id="state" name="state" value="{{ face[6] }}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="city">City</label>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ face[7] }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" class="form-control" id="country" name="country" value="{{ face[8] }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+
+        
+            
+        
+          
+    </div>
+</body>
+</html>
