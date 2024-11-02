@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Home{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 40px;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 18px;
+            color: #333333;
+            margin-right: 10px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        select {
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            width: 100%;
+            max-width: 300px;
+        }
+        #chart-container {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar" class="side-bar">
+        <div id="close-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        <nav class="navbar">
+            <a href="/dashboard"><i class="fas fa-home"></i> Home</a>
+            <a href="/recognize"><i class="fas fa-eye"></i> Recognize</a>
+            <a href="/faces"><i class="fas fa-edit"></i> Modify</a>
+            <a href="/analyze"><i class="fas fa-list"></i> Dashboard</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <main role="main" class="main-content">
+        <div class="container">
+            <h1>Analysis</h1>
+            <div class="form-group">
+                <label for="state">Select a state:</label>
+                <select id="state">
+                    {% for state in states %}
+                    <option value="{{ state }}">{{ state }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="chart-container"></div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/js/all.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            $('#state').change(function() {
+                var selectedState = $(this).val();
+                $.ajax({
+                    url: '/update_chart',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ state: selectedState }),
+                    success: function(response) {
+                        $('#chart-container').html(response.graph_html);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
