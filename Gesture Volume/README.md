@@ -30,9 +30,10 @@ This project provides a hand-tracking application that allows users to control s
 ## Installation
 
 1. Clone this repository:
+   ``` bash
       git clone https://github.com/Aryan-Chharia/Computer-Vision-Projects
       cd /Computer-Vision-Projects/Gesture Volume
-   
+   ```
 
 3. Install the required packages:
    ```bash
