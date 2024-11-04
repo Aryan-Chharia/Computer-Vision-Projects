@@ -1,0 +1,8 @@
+imutils==0.5.4
+numpy==2.1.2
+opencv_contrib_python==4.10.0.84
+opencv_python==4.10.0.82
+opencv_python_headless==4.10.0.84
+scipy==1.11.4
+streamlit==1.30.0
+
