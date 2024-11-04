@@ -6,9 +6,9 @@ This Project creates an app where users can upload an image to measure the size 
 
 ## Screenshots
 
-![App Screenshot](res1.png)
-![App Screenshot](res2.png)
-![App Screenshot](res3.png)
+![App Screenshot](Results/res1.png)
+![App Screenshot](Results/res2.png)
+![App Screenshot](Results/res3.png)
 
 
 
