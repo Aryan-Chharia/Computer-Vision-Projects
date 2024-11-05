@@ -1,4 +1,4 @@
-#  CLIP Image Classification
+## CLIP Image Classification
 
 This project implements an  image classification system using OpenAI's CLIP (Contrastive Language-Image Pretraining) model. The system allows users to classify images based on dynamically generated textual prompts, leveraging state-of-the-art vision-language models to provide zero-shot classification capabilities. 
 
@@ -31,3 +31,20 @@ You can install the required packages using pip:
 
 ```bash
 pip install torch torchvision torchaudio transformers pillow matplotlib
+```
+## Usage
+1. **Clone this repo:**
+```bash
+git clone https://github.com/yourusername/Clip_Image-Classification.git
+cd Clip_Image_Classification
+```
+2. Place your images in a folder and update the ```image_folder``` variable in the ```main()``` function of ```Clip_Image_Classification.py``` with the path to your image folder.
+
+3. Modify the base_terms variable to specify the objects or themes you want to classify.
+
+4. Run the script:
+```bash
+python Clip_Image-Classification.py
+```
+## Example
+**To use the project, you can specify base terms like "dog", "cat", or "scenic landscape". The model will classify images in the specified folder and display results with probabilities for each prompt.**
