@@ -1,4 +1,4 @@
-# 🎥 Real-Time-Car-Parking-Detection
+# Real-Time-Car-Parking-Detection
 
 This project aims to develop a real-time parking space detection system using deep learning techniques, specifically the U-Net architecture for accurate image segmentation. The system identifies available parking spots from live video feeds, enhancing urban mobility.
 
@@ -30,7 +30,7 @@ This project requires the following Python libraries:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/jaidh01/Computer-Vision-Projects.git
+   git clone https://github.com/Aryan-Chharia/Computer-Vision-Projects.git
    cd Computer-Vision-Projects/CarParkProject
    ```
 
@@ -66,7 +66,7 @@ This project requires the following Python libraries:
 8. **Visualization**:  Finally, visualize the segmentation results on sample frames to understand how well the model identifies available and occupied parking spaces in real-time.
 
 ## Sample Example
-
+https://github.com/user-attachments/assets/d2a29c37-e540-4cdb-9835-441e273767e6
 
 ## Acknowledgments
 
@@ -80,4 +80,4 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## Contact
 
-For any inquiries or issues, please feel free to open an issue in the repository or contact me at [jaidhinrgra402@gmail.com].
+For any inquiries or issues, please feel free to open an issue in the repository or contact me at [meetkshah3112@gmail.com].
