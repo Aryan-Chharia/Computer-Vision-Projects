@@ -184,3 +184,9 @@ Thanks to all the amazing people who have contributed to Computer-Vision-Project
 ## License
 
 This repository is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+<div align="center">
+    <a href="#top">
+        <img src="https://img.shields.io/badge/Back%20to%20Top-000000?style=for-the-badge&logo=github&logoColor=white" alt="Back to Top">
+    </a>
+</div>
