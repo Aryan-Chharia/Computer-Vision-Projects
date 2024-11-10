@@ -67,6 +67,4 @@ OCR_model = VisionEncoderDecoderModel.from_pretrained("OCR-model", config=encode
 
 This project demonstrates how to apply a VisionEncoderDecoder model for OCR tasks, specifically for CAPTCHA decoding. The model shows promising results, although real-world CAPTCHA complexity may require further tuning and dataset expansion.
 
----
 
-This `README.md` provides an overview of the project's purpose, setup, model details, usage instructions, and example output. Adjustments can be made based on your specific needs or project structure.
